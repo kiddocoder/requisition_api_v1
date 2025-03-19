@@ -20,7 +20,7 @@ export default class extends BaseSchema {
       table.bigInteger('prix_unitaire').notNullable()
       table.bigInteger('prix_total').notNullable()
       table.string('priority').notNullable()
-      table.string('type_transaction').notNullable()
+      table.string('transaction_type').notNullable()
 
       table.bigInteger('supplier_id')
       .unsigned()
