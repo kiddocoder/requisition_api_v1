@@ -14,6 +14,7 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
       table.bigInteger('user_id')
+      .nullable()
       .unsigned()
       .references('id')
       .inTable('users')

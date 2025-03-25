@@ -6,16 +6,8 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
-
-      table.bigInteger('enterprise_id')
-      .unsigned()
-      .references('id')
-      .inTable('enterprises')
-      .onDelete('CASCADE')
-      .onUpdate('CASCADE')
-
       table.bigInteger('budget').defaultTo(0)
-
+      table.boolean('is_deleted').defaultTo(false)
       table.timestamps()
     })
   }

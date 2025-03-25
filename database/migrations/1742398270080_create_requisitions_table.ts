@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
-      table.date('date').notNullable()
+      table.dateTime('date').nullable().defaultTo(this.now())
       table.text("titre")
       table.text("objet")
 
@@ -53,7 +53,7 @@ export default class extends BaseSchema {
       table.string('status').notNullable().defaultTo("pending") //pending,accepted,refused,cancelled,returned
       
       table.boolean('is_deleted').defaultTo(false)
-      table.index(["enterprise_id,user_id,car_id,caisse_id"])
+      table.index(["enterprise_id","demendeur_id","car_id","caisse_id"])
       table.timestamps()
     })
   }

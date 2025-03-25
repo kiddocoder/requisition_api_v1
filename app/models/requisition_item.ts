@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import Article from './article.js'
 import type{ BelongsTo } from '@adonisjs/lucid/types/relations'
+import Requisition from './requisition.js'
 
 export default class RequisitionItem extends BaseModel {
   @column({ isPrimary: true })
@@ -14,9 +15,6 @@ export default class RequisitionItem extends BaseModel {
   declare article_id:number
 
   @column()
-  declare designation: string
-
-  @column()
   declare quantite_demande: number
 
   @column()
@@ -25,6 +23,17 @@ export default class RequisitionItem extends BaseModel {
   @column()
   declare prix_unitaire: number
 
+  @column()
+  declare prix_total: number   
+
+  @column()
+  declare priority: string 
+
+  @column()
+  declare transaction_type: string 
+
+  @column()
+  declare avance_credit: number
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -36,4 +45,9 @@ export default class RequisitionItem extends BaseModel {
     foreignKey:'article_id'
   })
   declare article :BelongsTo<typeof Article>
+
+  @belongsTo(()=>Requisition,{
+    foreignKey:'requisition_id'
+  })
+  declare requisition:BelongsTo<typeof Requisition>
 }

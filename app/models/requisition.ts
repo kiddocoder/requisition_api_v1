@@ -10,7 +10,7 @@ export default class Requisition extends BaseModel {
   declare id: number
 
   @column()
-  declare date: string
+  declare date: DateTime | null
 
   @column()
   declare titre: string

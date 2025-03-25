@@ -15,7 +15,7 @@ export default class EnterprisesController {
    * Handle form submission for the create action
    */
   async store({ request,response }: HttpContext) {
-    const enterprise = await Enterprise.create(request.all())
+    const enterprise = await Enterprise.updateOrCreate({name:request.input('name')},request.all())
     return response.json(enterprise)
   }
 
