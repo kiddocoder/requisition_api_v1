@@ -13,12 +13,13 @@ export default class RequisitionsController {
       const requisitions = await Requisition.query()
       .where('is_deleted',false)
       .preload('enterprise')
-      .preload('items')
+      .preload('items',(query)=>{
+        query.preload('article')
+      })
       .preload('demendeur')
       .orderBy('created_at','desc')
       .exec()
        || [];
-
 
       return response.send(requisitions)
   }
