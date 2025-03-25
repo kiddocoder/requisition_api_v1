@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, computed, hasMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Enterprise from './enterprise.js'
@@ -51,4 +51,8 @@ export default class Requisition extends BaseModel {
   })
   declare items: HasMany<typeof RequisitionItem>
 
+  @computed()
+  get total(){
+    return this.items?.reduce((t,req)=>t+req.prix_total,0) || 0
+  }
 }
