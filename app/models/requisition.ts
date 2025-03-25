@@ -22,7 +22,7 @@ export default class Requisition extends BaseModel {
   declare status: string
 
   @column()
-  declare user_id: number
+  declare demendeur_id: number
 
   @column()
   declare enterprise_id: number
@@ -37,9 +37,9 @@ export default class Requisition extends BaseModel {
   declare updatedAt: DateTime
 
   @belongsTo(() => User, {
-    foreignKey: 'user_id',
+    foreignKey: 'demendeur_id',
   })
-  declare user: BelongsTo<typeof User>
+  declare demendeur: BelongsTo<typeof User>
 
   @belongsTo(() => Enterprise, {
     foreignKey: 'enterprise_id',

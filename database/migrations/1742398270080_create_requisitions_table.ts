@@ -12,13 +12,15 @@ export default class extends BaseSchema {
 
       table.bigInteger("demendeur_id")
       .unsigned()
+      .nullable()
       .references('id')
       .inTable('users')
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
 
       table.bigInteger('enterprise_id')
-      .unsigned()
+      .unsigned() 
+      .nullable()
       .references('id')
       .inTable('enterprises')
       .onDelete('CASCADE')
@@ -48,7 +50,7 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
   
-      table.string('status').notNullable()//pending,accepted,refused,cancelled,returned
+      table.string('status').notNullable().defaultTo("pending") //pending,accepted,refused,cancelled,returned
       
       table.boolean('is_deleted').defaultTo(false)
       table.index(["enterprise_id,user_id,car_id,caisse_id"])
