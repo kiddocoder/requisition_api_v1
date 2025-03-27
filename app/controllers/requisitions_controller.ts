@@ -55,13 +55,14 @@ export default class RequisitionsController {
       const requisition = await Requisition.create({ ...data, date });
   
       // Assign requisition_id to all items before inserting into RequisitionItem
-      items.forEach((item) => {
-        item.requisition_id = requisition.id;
-      });
+      const insertItems = items.map((item) => {return {
+        requisition_id: requisition.id,
+        article_id :item.article_id 
+      }});
   
       // Insert items into requisition_items table
-      if (items.length > 0) {
-        await RequisitionItem.createMany(items);
+      if (insertItems.length > 0) {
+        await RequisitionItem.createMany(insertItems);
       }
 
       //if there are a comment then attach it on requisitionComment
