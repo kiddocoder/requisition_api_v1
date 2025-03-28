@@ -9,7 +9,7 @@ export default class Supplier extends BaseModel {
   declare name:string
 
   @column()
-  declare adress:string
+  declare address:string
 
   @column()
   declare phone:string

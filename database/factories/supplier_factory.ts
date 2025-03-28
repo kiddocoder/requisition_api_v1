@@ -6,7 +6,7 @@ export const SupplierFactory = factory
     return {
       name: faker.person.firstName(),
       phone: faker.phone.number(),
-      address: faker.address.streetAddress(),
+      address: faker.location.streetAddress(),
     }
   })
   .build()

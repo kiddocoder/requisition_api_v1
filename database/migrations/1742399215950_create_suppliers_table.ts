@@ -7,7 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
       table.string('name')
-      table.string('adress')
+      table.string('address')
       table.string('phone')
       table.boolean('is_deleted').defaultTo(false)
       table.timestamps()
