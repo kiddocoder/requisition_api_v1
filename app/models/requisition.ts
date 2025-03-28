@@ -4,6 +4,7 @@ import User from './user.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Enterprise from './enterprise.js'
 import RequisitionItem from './requisition_item.js'
+import RequisitionAttachment from './requisition_attachment.js'
 
 export default class Requisition extends BaseModel {
   @column({ isPrimary: true })
@@ -17,6 +18,10 @@ export default class Requisition extends BaseModel {
 
   @column()
   declare objet: string
+
+  @column()
+  declare priority: string 
+
 
   @column()
   declare status: string
@@ -50,6 +55,11 @@ export default class Requisition extends BaseModel {
     foreignKey:'requisition_id'
   })
   declare items: HasMany<typeof RequisitionItem>
+
+  @hasMany(() => RequisitionAttachment,{
+    foreignKey:'requisition_id'
+  })
+  declare attachments: HasMany<typeof RequisitionAttachment>
 
   @computed()
   get total(){

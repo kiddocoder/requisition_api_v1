@@ -49,7 +49,7 @@ export default class extends BaseSchema {
       .inTable('users')
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
-  
+      table.string('priority').nullable()
       table.string('status').notNullable().defaultTo("pending") //pending,accepted,refused,cancelled,returned
       
       table.boolean('is_deleted').defaultTo(false)

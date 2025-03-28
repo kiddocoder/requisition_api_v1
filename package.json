@@ -11,7 +11,8 @@
     "test": "node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "randura": "node ace db:truncate && node ace db:seed " 
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",

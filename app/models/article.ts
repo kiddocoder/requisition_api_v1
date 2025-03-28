@@ -9,6 +9,9 @@ export default class Article extends BaseModel {
   declare name: string
 
   @column()
+  declare unite_mesure:string
+
+  @column()
   declare description: string
 
   @column()

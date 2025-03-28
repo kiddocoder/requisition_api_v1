@@ -18,22 +18,22 @@ export default class RequisitionItem extends BaseModel {
   declare quantite_demande: number
 
   @column()
-  declare unite_mesure: string
-
-  @column()
   declare prix_unitaire: number
 
   @column()
   declare prix_total: number   
 
   @column()
-  declare priority: string 
-
-  @column()
   declare transaction_type: string 
 
   @column()
   declare avance_credit: number
+
+  @column()
+  declare supplier_id: number
+
+  @column()
+  declare is_deleted: boolean
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
