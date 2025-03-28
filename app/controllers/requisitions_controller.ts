@@ -153,10 +153,10 @@ export default class RequisitionsController {
         await RequisitionItem.updateOrCreate(
           { requisition_id, article_id: item.article_id }, // Condition pour mise à jour
           {
-            prix_unitaire: item.prix_unitaire,
-            prix_total: item.prix_total,
+            prix_unitaire: parseInt(item.prix_unitaire),
+            prix_total: parseInt(item.prix_total),
             transaction_type: item.transaction_type,
-            avance_credit: item.avance_credit,
+            avance_credit: parseInt(item.avance_credit),
             supplier_id: item.supplier_id
           }
         );

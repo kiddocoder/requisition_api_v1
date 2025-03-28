@@ -29,4 +29,5 @@ router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();
 router.resource('articles',ArticlesController).apiOnly();
 router.resource('suppliers',SuppliersController).apiOnly();
+router.post("procurement",RequisitionsController.prototype.approvisionnement);
 }).prefix('/api');
