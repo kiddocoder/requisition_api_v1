@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
-import { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
+import OperationType from './operation_type.js'
+import Caisse from './caisse.js'
 
 export default class Operation extends BaseModel {
   @column({ isPrimary: true })
