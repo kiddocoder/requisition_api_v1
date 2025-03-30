@@ -1,14 +1,18 @@
 import { DateTime } from 'luxon'
-import { BaseModel, belongsTo, column, computed, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, belongsTo, column, computed, hasMany } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Enterprise from './enterprise.js'
 import RequisitionItem from './requisition_item.js'
 import RequisitionAttachment from './requisition_attachment.js'
 
+
 export default class Requisition extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
+
+  @column()
+  declare number:string | null
 
   @column()
   declare date: DateTime | null
@@ -41,6 +45,11 @@ export default class Requisition extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
+  @beforeCreate()
+  static generateNumber(requisition: Requisition){
+    requisition.number = `REQ-${DateTime.now().toFormat('yyMMddHHmmss')}`
+  }
+
   @belongsTo(() => User, {
     foreignKey: 'demendeur_id',
   })
@@ -63,6 +72,6 @@ export default class Requisition extends BaseModel {
 
   @computed()
   get total(){
-    return this.items?.reduce((t,req)=>t+req.prix_total,0) || 0
+    return Math.round(this.items?.reduce((t,req)=>t+Number(req.prix_total),0) || 0)
   }
 }
