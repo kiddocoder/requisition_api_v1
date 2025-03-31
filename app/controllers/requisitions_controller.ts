@@ -3,9 +3,12 @@ import Requisition from '#models/requisition';
 import RequisitionAttachment from '#models/requisition_attachment';
 import RequisitionComment from '#models/requisition_comment';
 import RequisitionItem from '#models/requisition_item';
+import env from '#start/env';
 import type { HttpContext } from '@adonisjs/core/http'
 import app from '@adonisjs/core/services/app';
 import { DateTime } from 'luxon';
+import path from 'path';
+import fs from 'fs/promises'
 
 export default class RequisitionsController {
   /**
@@ -17,6 +20,7 @@ export default class RequisitionsController {
       .preload('enterprise')
       .preload('items',(query)=>{
         query.preload('article')
+          query.preload('supplier')
       })
       .preload('attachments',(query)=>{
         query.where('is_deleted',false)
@@ -55,7 +59,7 @@ export default class RequisitionsController {
         const newRequisitionItems = items.map((item:any) => ({
           requisition_id: requisition.id,
           article_id: item.article_id,
-          quantite_demande: parseInt(item.quantiteDemande || 0)
+          quantite_demande: Number(item.quantiteDemande || 0)
         }));
         
         await RequisitionItem.createMany(newRequisitionItems);
@@ -88,8 +92,9 @@ export default class RequisitionsController {
     .preload('demendeur')
     .preload('items',(query)=>{
       query.preload('article')
-    }
-    )
+      query.preload('supplier')
+    })
+    .preload('comments')
     .first();
 
     if(!requisition){
@@ -116,7 +121,10 @@ export default class RequisitionsController {
       const comment = request.input('comment') || null;
       const user_id = request.input('user_id') || null;
       const items = request.input('items') || [];
-      const pieceFiles = request.files('attachments');
+      const pieceFiles = request.files('attachments', {
+        size: '10mb',
+        extnames: ['jpg', 'png', 'pdf', 'docx', 'xlsx'],
+      });
   
       // Vérifier si la réquisition existe et n'est pas supprimée
       const requisition = await Requisition.find(requisition_id);
@@ -127,21 +135,24 @@ export default class RequisitionsController {
       // Mise à jour de la priorité de la réquisition
       requisition.priority = priority;
       await requisition.save();
-  
-      // Mise à jour des RequisitionItems
-      for (const item of items) {
-        await RequisitionItem.updateOrCreate(
-          { requisition_id:requisition.id, article_id: item.article_id }, // Condition pour mise à jour
-          {
-            prix_unitaire: parseInt(item.prix_unitaire),
-            prix_total: parseInt(item.prix_total),
-            transaction_type: item.transaction_type,
-            avance_credit: parseInt(item.avance_credit),
-            supplier_id: item.supplier_id
-          }
-        );
-      }
-  
+
+      let requisitionItems:Partial<RequisitionItem>[] = items.map((item:RequisitionItem) => ({
+        requisition_id: Number(requisition.id),
+        article_id: Number(item.article_id),
+        prix_unitaire: Number(item.prix_unitaire),
+        prix_total: Number(item.prix_total),
+        transaction_type: item.transaction_type,
+        avance_credit: Number(item.avance_credit),
+        supplier_id: Number(item.supplier_id)
+      }));
+
+      // requisition.items.map((reqItem)=>{
+      //   const item = requisitionItems.
+      // })
+
+      console.log(requisitionItems)
+      await RequisitionItem.updateOrCreateMany(['article_id','requisition_id'],requisitionItems)
+
       // Ajouter un commentaire si fourni
       if (comment) {
         await RequisitionComment.create({
@@ -154,20 +165,74 @@ export default class RequisitionsController {
       // Traitement des pièces jointes
       if (pieceFiles && pieceFiles.length > 0) {
         for (const file of pieceFiles) {
-          const fileName = `${new Date().getTime()}_${file.clientName}`;
-          await app.tmpPath('requisition_attachments', { name: fileName });
+          // Déplacer le fichier vers le dossier de stockage
+          await file.move(app.tmpPath('requisition_attachments'), {
+            name: `${new Date().getTime()}_${file.clientName}`,
+            overwrite: true
+          });
   
           await RequisitionAttachment.create({
             requisition_id,
-            file_path: `requisition_attachments/${fileName}`
+            file_name: `${file.fileName}`,
+            file_type: file.type,
+            url: `${env.get('API_URL')}attachments/${file.fileName}`
           });
         }
       }
   
       return response.ok({ message: 'Requisition updated successfully!' });
     } catch (error) {
-      return response.badRequest(error.message);
+      return response.badRequest({ message: error.message });
     }
+  }
+
+  async serveAttachment({ params, response }: HttpContext) {
+    try {
+      const { filename } = params;
+      const storagePath = app.tmpPath('requisition_attachments');
+      const filePath = path.join(storagePath, filename);
+  
+      // Check if file exists
+      await fs.access(filePath);
+  
+      // Optional: Verify the file exists in your database
+      const attachmentRecord = await RequisitionAttachment.findBy('file_nmae', `${filename}`);
+      
+      if (!attachmentRecord) {
+        return response.notFound({ message: 'File record not found' });
+      }
+  
+      // Set appropriate headers
+      response.header('Content-Disposition', `inline; filename="${filename}"`);
+
+      // Stream the file
+      return response.download(filePath);
+  
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        return response.notFound({ message: 'File not found' });
+      }
+      
+      console.error('File serving error:', error);
+      return response.internalServerError({ message: 'Failed to serve file' });
+    }
+  }
+
+  async requisitionComments({response,params}:HttpContext){
+    const requisition = await Requisition.find(params.requisition_id)
+    if(!requisition){
+      return response.notFound({message:"Requisition not found"})
+    }
+
+    const comments = await Requisition.query()
+    .preload('comments',(query)=>{
+      query.orderBy('created_at','asc')
+    })
+    .select('comments')
+    .orderBy('created_at','asc')
+    .exec();
+
+    return response.send(comments || [])
   }
   
 }

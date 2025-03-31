@@ -5,6 +5,7 @@ import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Enterprise from './enterprise.js'
 import RequisitionItem from './requisition_item.js'
 import RequisitionAttachment from './requisition_attachment.js'
+import RequisitionComment from './requisition_comment.js'
 
 
 export default class Requisition extends BaseModel {
@@ -61,9 +62,16 @@ export default class Requisition extends BaseModel {
   declare enterprise: BelongsTo<typeof Enterprise>
 
   @hasMany(() => RequisitionItem,{
-    foreignKey:'requisition_id'
+    foreignKey:'article_id',
+
   })
   declare items: HasMany<typeof RequisitionItem>
+
+  @hasMany(() => RequisitionComment,{
+    foreignKey:'requisition_id',
+
+  })
+  declare comments: HasMany<typeof RequisitionComment>
 
   @hasMany(() => RequisitionAttachment,{
     foreignKey:'requisition_id'

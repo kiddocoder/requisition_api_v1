@@ -9,6 +9,9 @@ export default class Caisse extends BaseModel {
   declare id: number
 
   @column()
+  declare name:string
+
+  @column()
   declare budget: number
 
   @column()

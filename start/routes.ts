@@ -8,6 +8,8 @@
 */
 
 import ArticlesController from '#controllers/articles_controller'
+import CaissesController from '#controllers/caisses_controller'
+import CarsController from '#controllers/cars_controller'
 import EnterprisesController from '#controllers/enterprises_controller'
 import RequisitionsController from '#controllers/requisitions_controller'
 import SuppliersController from '#controllers/suppliers_controller'
@@ -30,4 +32,10 @@ router.resource('requisitions',RequisitionsController).apiOnly();
 router.resource('articles',ArticlesController).apiOnly();
 router.resource('suppliers',SuppliersController).apiOnly();
 router.post("procurement",RequisitionsController.prototype.approvisionnement);
+router.resource('cars',CarsController).apiOnly();
+router.resource('caisses',CaissesController).apiOnly();
+router.get('/requisition/comments/:requisition_id',RequisitionsController.prototype.requisitionComments)
+
 }).prefix('/api');
+
+router.get('/attachments/:filename', RequisitionsController.prototype.serveAttachment);

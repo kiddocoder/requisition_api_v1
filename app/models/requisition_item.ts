@@ -3,6 +3,7 @@ import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import Article from './article.js'
 import type{ BelongsTo } from '@adonisjs/lucid/types/relations'
 import Requisition from './requisition.js'
+import Supplier from './supplier.js'
 
 export default class RequisitionItem extends BaseModel {
   @column({ isPrimary: true })
@@ -50,4 +51,10 @@ export default class RequisitionItem extends BaseModel {
     foreignKey:'requisition_id'
   })
   declare requisition:BelongsTo<typeof Requisition>
+
+  @belongsTo(()=>Supplier,{
+    foreignKey:'supplier_id'
+  })
+  declare supplier:BelongsTo<typeof Supplier>
+  
 }
