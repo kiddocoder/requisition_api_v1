@@ -32,7 +32,7 @@ export default class CaissesController {
   }
 
   /**
-   * Handle form submission for the edit action
+   * Handle form submission for the edit action 
    */
   async update({ params, request }: HttpContext) {}
 
