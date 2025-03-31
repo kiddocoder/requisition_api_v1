@@ -233,5 +233,17 @@ export default class RequisitionsController {
 
     return response.send(comments || [])
   }
+
+  async ApproveCompta({request,response}:HttpContext){
+    const data = request.only([
+      'requisition_id',
+      'caisse_id',
+      'voiture_id',
+      'status',
+    ])
+    const comment = request.input('comment');
+    const total = Number(request.input('total'));
+  
+  }
   
 }
