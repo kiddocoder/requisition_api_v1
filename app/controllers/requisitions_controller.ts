@@ -39,41 +39,18 @@ export default class RequisitionsController {
       const comment = request.input('comment');
       const date = DateTime.fromISO(request.input('date'));
       const items = request.input('items') || [];
-      const newItems = request.input('newItems') || [];
       
       // Création de la requête principale
       const requisition = await Requisition.create({ ...data, date });
       
-      // Traitement des nouveaux articles
-      if (newItems.length > 0) {
-        // Création des nouveaux articles
-        const articlesToCreate = newItems.map(item => ({
-          name: item.name,
-          unite_mesure: item.uniteMesure || 'N/A',
-        }));
-        
-        const insertedArticles = await Article.updateOrCreateMany(['name'], articlesToCreate);
-        
         // Ajout des nouveaux articles dans la table RequisitionItem
-        const newRequisitionItems = insertedArticles.map((article, index) => ({
+        const newRequisitionItems = items.map((item:any) => ({
           requisition_id: requisition.id,
-          article_id: article.id,
-          quantite_demande: newItems[index].quantiteDemande || 0
+          article_id: item.article_id,
+          quantite_demande: parseInt(item.quantiteDemande || 0)
         }));
         
         await RequisitionItem.createMany(newRequisitionItems);
-      }
-      
-      // Traitement des articles existants
-      if (items.length > 0) {
-        const existingRequisitionItems = items.map(item => ({
-          requisition_id: requisition.id,
-          article_id: item.article_id,
-          quantite_demande: item.quantiteDemande || 0  // Correction ici pour utiliser quantiteDemande
-        }));
-        
-        await RequisitionItem.createMany(existingRequisitionItems);
-      }
       
       // Enregistrement du commentaire si présent
       if (comment) {
@@ -113,11 +90,6 @@ export default class RequisitionsController {
 
     return response.send(requisition)
   }
-
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {}
 
   /**
    * Handle form submission for the edit action
