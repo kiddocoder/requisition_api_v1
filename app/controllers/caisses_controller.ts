@@ -22,7 +22,6 @@ export default class CaissesController {
     const caisse =  await Caisse.updateOrCreate({name:data.name},data);
     return response.send(caisse)
   }
-
   /**
    * Show individual record
    */
