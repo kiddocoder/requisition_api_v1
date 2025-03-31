@@ -252,7 +252,7 @@ export default class RequisitionsController {
     }
 
     requisition.status = data.status;
-    requisition.save();d
+    requisition.save();
 
       // Ajouter un commentaire si fourni
       if (comment) {
