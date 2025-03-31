@@ -42,6 +42,14 @@ export default class RequisitionsController {
       
       // Création de la requête principale
       const requisition = await Requisition.create({ ...data, date });
+
+       items.map(async (item:any)=>{
+       const k =  await Article.find(item.article_id)
+        k?.merge({
+          unite_mesure:item.uniteMesure
+        })
+        k?.save()
+       })
       
         // Ajout des nouveaux articles dans la table RequisitionItem
         const newRequisitionItems = items.map((item:any) => ({
@@ -103,7 +111,7 @@ export default class RequisitionsController {
 
   async approvisionnement({ response, request }: HttpContext) {
     try {
-      const requisition_id = request.input('requisition_id');
+      const requisition_id = Number(request.input('requisition_id'));
       const priority = request.input('priority') || 'normal';
       const comment = request.input('comment') || null;
       const user_id = request.input('user_id') || null;
@@ -123,7 +131,7 @@ export default class RequisitionsController {
       // Mise à jour des RequisitionItems
       for (const item of items) {
         await RequisitionItem.updateOrCreate(
-          { requisition_id, article_id: item.article_id }, // Condition pour mise à jour
+          { requisition_id:requisition.id, article_id: item.article_id }, // Condition pour mise à jour
           {
             prix_unitaire: parseInt(item.prix_unitaire),
             prix_total: parseInt(item.prix_total),
