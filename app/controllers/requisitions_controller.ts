@@ -100,7 +100,6 @@ export default class RequisitionsController {
     if(!requisition){
       return response.notFound({message:'Requisition not found'})
     }
-
     return response.send(requisition)
   }
 
