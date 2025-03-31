@@ -36,7 +36,7 @@ export default class Operation extends BaseModel {
   @belongsTo(()=>OperationType,{
     foreignKey:"operation_type_id"
   })
-  declare operationType:BelongsTo<typeof OperationType>
+  declare operation_type:BelongsTo<typeof OperationType>
 
   @belongsTo(()=>User,{
     foreignKey:"user_id"

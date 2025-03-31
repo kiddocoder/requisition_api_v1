@@ -14,6 +14,9 @@ export default class RequisitionComment extends BaseModel {
   declare user_id:number
 
   @column()
+  declare author:string
+
+  @column()
   declare comment: string
 
   @column()

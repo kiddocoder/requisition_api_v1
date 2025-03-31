@@ -20,6 +20,7 @@ export default class extends BaseSchema {
       .inTable('users')
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
+      table.string('author').defaultTo('utilisateur')
       table.text('comment')
       table.boolean('is_deleted').defaultTo(false)
       table.boolean('is_public').defaultTo(true)

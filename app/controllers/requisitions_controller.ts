@@ -9,6 +9,9 @@ import app from '@adonisjs/core/services/app';
 import { DateTime } from 'luxon';
 import path from 'path';
 import fs from 'fs/promises'
+import Caisse from '#models/caisse';
+import Operation from '#models/operation';
+import OperationType from '#models/operation_type';
 
 export default class RequisitionsController {
   /**
@@ -234,25 +237,46 @@ export default class RequisitionsController {
     return response.send(comments || [])
   }
 
-  async ApproveCompta({request,response}:HttpContext){
+  async ApproveCompta({request,params,response}:HttpContext){
     const data = request.only([
       'requisition_id',
       'caisse_id',
       'voiture_id',
+      'description',
       'status',
-    ])
+    ]) 
     const user_id = request.input('user_id');
     const comment = request.input('comment');
     const total = Number(request.input('total'));
     const author = request.input('author');
 
-    const requisition = await Requisition.find(data.requisition_id);
+    const requisition = await Requisition.find(params.requisition_id);
     if (!requisition || requisition.is_deleted) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
-
     requisition.status = data.status;
     requisition.save();
+
+    const  caisse = await Caisse.find(data.caisse_id)
+    if(!caisse || caisse.is_deleted ){
+      return response.notFound({ message: 'Caisse not found or deleted!' });
+    }
+    caisse.merge(
+      {
+        budget:caisse.budget-total
+      }
+    )
+    caisse.save();
+
+    const operation = await OperationType.findByOrFail({name:'expenses'})
+
+    await Operation.create({
+      operation_type_id:operation.id,
+      caisse_id:caisse.id,
+      amount:total,
+      user_id:user_id,
+      description:data?.description || null
+    })
 
       // Ajouter un commentaire si fourni
       if (comment) {
@@ -263,6 +287,8 @@ export default class RequisitionsController {
           author
         });
       }
+
+      response.ok({message:"Approved par compatabit"})
   
   }
   

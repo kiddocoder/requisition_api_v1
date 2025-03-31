@@ -35,6 +35,7 @@ router.post("procurement",RequisitionsController.prototype.approvisionnement);
 router.resource('cars',CarsController).apiOnly();
 router.resource('caisses',CaissesController).apiOnly();
 router.get('/requisition/comments/:requisition_id',RequisitionsController.prototype.requisitionComments)
+router.post('/requisition/approve/compta/:requisition_id',RequisitionsController.prototype.ApproveCompta)
 
 }).prefix('/api');
 
