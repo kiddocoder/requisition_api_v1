@@ -11,14 +11,13 @@ export default class ArticlesController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {}
-
-  /**
    * Handle form submission for the create action
    */
-  async store({ request }: HttpContext) {}
+  async store({ request,response }: HttpContext) {
+    const data = request.all();
+    const article = await Article.updateOrCreate({name:data.name},data)
+    return response.json(article)
+  }
 
   /**
    * Show individual record
