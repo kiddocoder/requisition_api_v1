@@ -241,8 +241,28 @@ export default class RequisitionsController {
       'voiture_id',
       'status',
     ])
+    const user_id = request.input('user_id');
     const comment = request.input('comment');
     const total = Number(request.input('total'));
+    const author = request.input('author');
+
+    const requisition = await Requisition.find(data.requisition_id);
+    if (!requisition || requisition.is_deleted) {
+      return response.notFound({ message: 'Requisition not found or deleted!' });
+    }
+
+    requisition.status = data.status;
+    requisition.save();d
+
+      // Ajouter un commentaire si fourni
+      if (comment) {
+        await RequisitionComment.create({
+          requisition_id:data.requisition_id,
+          comment,
+          user_id,
+          author
+        });
+      }
   
   }
   
