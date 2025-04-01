@@ -1,44 +1,43 @@
 import { DateTime } from 'luxon'
-import { BaseModel, beforeCreate, belongsTo, column, computed, hasMany } from '@adonisjs/lucid/orm'
+import { BaseModel, beforeCreate, belongsTo, column, computed, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import Enterprise from './enterprise.js'
 import RequisitionItem from './requisition_item.js'
 import RequisitionAttachment from './requisition_attachment.js'
 import RequisitionComment from './requisition_comment.js'
-
+import Article from './article.js'
 
 export default class Requisition extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
   @column()
-  declare number:string | null
+  declare number: string
+
+  @column.date()
+  declare date: DateTime
 
   @column()
-  declare date: DateTime | null
-
-  @column()
-  declare titre: string
+  declare titre: string 
 
   @column()
   declare objet: string
 
   @column()
-  declare priority: string 
-
-
-  @column()
-  declare status: string
+  declare priority: 'low' | 'normal' | 'high' 
 
   @column()
-  declare demendeur_id: number
+  declare status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' 
 
+  @column()
+  declare demendeur_id: number 
+  
   @column()
   declare enterprise_id: number
 
   @column()
-  declare is_deleted:boolean
+  declare is_deleted: boolean 
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -47,29 +46,41 @@ export default class Requisition extends BaseModel {
   declare updatedAt: DateTime
 
   @beforeCreate()
-  static generateNumber(requisition: Requisition){
+  static async generateNumber(requisition: Requisition) {
     requisition.number = `REQ-${DateTime.now().toFormat('yyMMddHHmmss')}`
   }
 
-  @belongsTo(() => User, {
-    foreignKey: 'demendeur_id',
+  // Relationships
+  @manyToMany(() => Article, {
+    pivotTable: 'requisition_items',
+    localKey: 'id',
+    pivotForeignKey: 'requisition_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'article_id',
+    pivotColumns: [
+      'quantite_demande',
+      'prix_unitaire',
+      'prix_total',
+      'transaction_type',
+      'avance_credit',
+      'supplier_id',
+      'is_deleted'
+    ]
   })
-  declare demendeur: BelongsTo<typeof User>
+  declare articles: ManyToMany<typeof Article>
 
-  @belongsTo(() => Enterprise, {
-    foreignKey: 'enterprise_id',
+  @belongsTo(() => Enterprise,{
+    foreignKey:'enterprise_id'
   })
   declare enterprise: BelongsTo<typeof Enterprise>
 
   @hasMany(() => RequisitionItem,{
-    foreignKey:'article_id',
-
+    foreignKey:'requisition_id',
   })
-  declare items: HasMany<typeof RequisitionItem>
+ declare items: HasMany<typeof RequisitionItem>
 
   @hasMany(() => RequisitionComment,{
-    foreignKey:'requisition_id',
-
+    foreignKey:'requisition_id'
   })
   declare comments: HasMany<typeof RequisitionComment>
 
@@ -78,8 +89,13 @@ export default class Requisition extends BaseModel {
   })
   declare attachments: HasMany<typeof RequisitionAttachment>
 
+  @belongsTo(()=>User,{
+    foreignKey:'demendeur_id'
+  })
+  declare demendeur:BelongsTo<typeof User>
+
   @computed()
-  get total(){
-    return Math.round(this.items?.reduce((t,req)=>t+Number(req.prix_total),0) || 0)
+  get total() {
+    return this.items?.reduce((sum, item) => sum + Number(item.prix_total || 0), 0) || 0
   }
 }
