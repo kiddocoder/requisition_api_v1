@@ -6,6 +6,7 @@ export const CaisseFactory = factory
     return {
       name:faker.person.firstName(),
       budget: faker.number.int({ min: 1000, max: 1000000000 }),
+      solde_actuel: faker.number.int({ min: 1000, max: 100000 }),
     }
   })
   .build()

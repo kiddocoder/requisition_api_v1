@@ -152,6 +152,7 @@ export default class RequisitionsController {
       const comment = request.input('comment') || null;
       const user_id = request.input('user_id') || null;
       const items = request.input('items') || [];
+      const author = request.input('author') || 'utilisateur'
       const pieceFiles = request.files('attachments', {
         size: '10mb',
         extnames: ['jpg', 'png', 'pdf', 'docx', 'xlsx'],
@@ -201,6 +202,7 @@ export default class RequisitionsController {
         await RequisitionComment.create({
           requisition_id,
           comment,
+          author,
           user_id
         }, { client: trx });
       }
@@ -298,10 +300,10 @@ export default class RequisitionsController {
       'description',
       'status',
     ]) 
-    const user_id = request.input('user_id');
-    const comment = request.input('comment');
+
+    const getcomment = request.input('comment');
+    const {comment,author,user_id} = getcomment;
     const total = Number(request.input('total'));
-    const author = request.input('author');
 
     const requisition = await Requisition.find(params.requisition_id);
     if (!requisition || requisition.is_deleted) {
@@ -316,7 +318,7 @@ export default class RequisitionsController {
     }
     caisse.merge(
       {
-        budget:caisse.budget-total
+        solde_actuel:caisse.budget - total
       }
     )
     caisse.save();

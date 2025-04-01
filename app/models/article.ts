@@ -1,6 +1,5 @@
-import { BaseModel, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
-import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
-import RequisitionItem from './requisition_item.js'
+import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
+import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Requisition from './requisition.js'
 

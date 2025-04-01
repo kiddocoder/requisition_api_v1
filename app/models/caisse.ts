@@ -15,6 +15,9 @@ export default class Caisse extends BaseModel {
   declare budget: number
 
   @column()
+ declare solde_actuel:number
+
+  @column()
   declare is_deleted: boolean
 
   @column.dateTime({ autoCreate: true })
