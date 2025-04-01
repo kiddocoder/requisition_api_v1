@@ -28,13 +28,22 @@ export default class Requisition extends BaseModel {
   declare priority: 'low' | 'normal' | 'high' 
 
   @column()
-  declare status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' 
+  declare status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled' | 'returned'
 
   @column()
   declare demendeur_id: number 
   
   @column()
   declare enterprise_id: number
+
+  @column()
+  declare approved_direction:boolean
+
+  @column()
+  declare precured:boolean
+
+  @column()
+  declare approved_accounter:boolean
 
   @column()
   declare is_deleted: boolean 

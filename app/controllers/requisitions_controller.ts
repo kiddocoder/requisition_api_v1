@@ -167,6 +167,7 @@ export default class RequisitionsController {
   
       // Mise à jour de la priorité de la réquisition
       requisition.priority = priority;
+      requisition.precured = true; 
       await requisition.useTransaction(trx).save();
   
       // 1. D'abord, supprimer les articles qui ne sont plus dans la liste
@@ -211,7 +212,7 @@ export default class RequisitionsController {
       if (pieceFiles && pieceFiles.length > 0) {
         for (const file of pieceFiles) {
           await file.move(app.tmpPath('requisition_attachments'), {
-            name: `${new Date().getTime()}_${file.clientName}`,
+            name: `${new Date().getTime()}`,
             overwrite: true
           });
   
@@ -253,7 +254,7 @@ export default class RequisitionsController {
       await fs.access(filePath);
   
       // Optional: Verify the file exists in your database
-      const attachmentRecord = await RequisitionAttachment.findBy('file_nmae', `${filename}`);
+      const attachmentRecord = await RequisitionAttachment.findBy('file_name', `${filename}`);
       
       if (!attachmentRecord) {
         return response.notFound({ message: 'File record not found' });
@@ -267,7 +268,7 @@ export default class RequisitionsController {
   
     } catch (error) {
       if (error.code === 'ENOENT') {
-        return response.notFound({ message: 'File not found' });
+        return response.notFound({ message: 'File not found'});
       }
       
       console.error('File serving error:', error);
@@ -298,7 +299,6 @@ export default class RequisitionsController {
       'caisse_id',
       'voiture_id',
       'description',
-      'status',
     ]) 
 
     const getcomment = request.input('comment');
@@ -309,7 +309,8 @@ export default class RequisitionsController {
     if (!requisition || requisition.is_deleted) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
-    requisition.status = data.status;
+    requisition.status = 'pending';
+    requisition.approved_accounter = true;
     requisition.save();
 
     const  caisse = await Caisse.find(data.caisse_id)
@@ -351,6 +352,18 @@ export default class RequisitionsController {
     const requisition = await Requisition.find(params.requisition_id);
     const articles = await requisition?.related('items').query();
     return response.send(articles || [])
+  }
+
+  async approvDirection({response,params,request}:HttpContext){
+    const requisition = await Requisition.find(params.requisition_id);
+    const status = request.input('status') || 'pending'
+    if(!requisition){
+      return response.notFound({message:"Requisition not found!"})
+    }
+    requisition.approved_direction = status === 'approved';
+    requisition.status = status;
+    requisition.save()
+    return response.ok({message:"Requisition approuv directio"})
   }
   
 }

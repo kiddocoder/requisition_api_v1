@@ -51,7 +51,10 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
       table.string('priority').nullable()
-      table.string('status').notNullable().defaultTo("pending") //pending,accepted,refused,cancelled,returned
+      table.boolean('approved_accounter').defaultTo(false)
+      table.boolean('precured').defaultTo(false) // approvisionne
+      table.boolean('approved_direction').defaultTo(false)
+      table.string('status').notNullable().defaultTo("draft") //pending,accepted,refused,cancelled,returned
       
       table.boolean('is_deleted').defaultTo(false)
       table.index(["enterprise_id","demendeur_id","car_id","caisse_id"])
