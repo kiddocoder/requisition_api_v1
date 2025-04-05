@@ -6,6 +6,7 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
+      table.string('unique_id',25).nullable()
       table.string('name').notNullable()
       table.string('unite_mesure').defaultTo("N/A")
       table.string('description').nullable().defaultTo(" Pas de description")
