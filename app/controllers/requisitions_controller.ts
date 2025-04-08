@@ -136,12 +136,12 @@ export default class RequisitionsController {
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  // async update({ params, request }: HttpContext) {}
 
   /**
    * Delete record
    */
-  async destroy({ params }: HttpContext) {}
+  // async destroy({ params }: HttpContext) {}
 
   async approvisionnement({ response, request }: HttpContext) {
     const trx = await db.transaction();
