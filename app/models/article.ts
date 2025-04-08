@@ -1,4 +1,4 @@
-import { afterSave, BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
+import {  BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Requisition from './requisition.js'
@@ -36,9 +36,8 @@ export default class Article extends BaseModel {
 
   @beforeCreate()
   public static async generateUniqueId(article: Article) {
-    const idStr = article.id.toString().padStart(4, '0');
-    const randomPart = Math.random().toString(36).substring(2, 4).padStart(3, '0');
-    article.uniqueId = article.name.slice( 0, 3) +'-'+ randomPart+idStr;
+    const randomPart = Math.random().toString(36).substring(1, 4).padStart(3, '0');
+    article.uniqueId = randomPart;
   }
 
   @manyToMany(() => Requisition, {
