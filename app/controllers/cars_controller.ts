@@ -34,10 +34,23 @@ export default class CarsController {
   /**
    * Handle form submission for the edit action
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request }: HttpContext) {
+    const car = await Car.findOrFail(params.id)
+    const data = request.only([
+      'name',
+      'description'
+    ])
+
+    await car.merge(data).save()
+    return car;
+  }
 
   /**
    * Delete record
    */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ params,response }: HttpContext) {
+    const car = await Car.findOrFail(params.id);
+    await car.delete();
+    return response.ok({ message: 'Car deleted' })
+  }
 }

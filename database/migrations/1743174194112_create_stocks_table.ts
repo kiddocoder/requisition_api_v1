@@ -5,10 +5,32 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').primary()
 
-      table.timestamp('created_at')
-      table.timestamp('updated_at')
+      table
+        .integer('article_id')
+        .unsigned()
+        .references('id')
+        .inTable('articles')
+        .onDelete('CASCADE')
+
+        table
+        .integer('supplier_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('suppliers')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+
+      table.bigInteger('quantite').defaultTo(0)
+      table.bigInteger('prix_unitaire').defaultTo(0)
+      table.bigInteger('prix_total').defaultTo(0)
+      table.bigInteger('avance_credit').defaultTo(0)
+      table.string('transaction_type').defaultTo("cash") // cash ou credit,
+      table.enum('status', ['en_stock', 'stock_faible', 'rupture_de_stock']).defaultTo("en_stock")
+
+      table.timestamps()
     })
   }
 

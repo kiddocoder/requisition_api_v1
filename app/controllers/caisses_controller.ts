@@ -33,10 +33,22 @@ export default class CaissesController {
   /**
    * Handle form submission for the edit action 
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request }: HttpContext) {
+    const caisse = await Caisse.findOrFail(params.id)
+    const data = request.only([
+      'name',
+      'budget'
+    ])
+    await caisse.merge(data).save()
+    return caisse
+  }
 
   /**
    * Delete record
    */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ params,response }: HttpContext) {
+    const caisse = await Caisse.findOrFail(params.id);
+    await caisse.delete();
+    return response.ok({ message: 'Caisse deleted' })
+  }
 }
