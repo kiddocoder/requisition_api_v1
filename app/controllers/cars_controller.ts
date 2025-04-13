@@ -6,7 +6,11 @@ export default class CarsController {
    * Display a list of resource
    */
   async index({response}: HttpContext) {
-    const cars = await Car.all();
+    const cars = await Car.query()
+    .preload('documents')
+    .preload('equipments')
+    .orderBy('created_at', 'desc')
+    .exec()
 
     return response.ok(cars || [])
   }
@@ -19,6 +23,9 @@ export default class CarsController {
   async store({response,request}: HttpContext) {
     const data =  request.only([
       'name',
+      'license_plate',
+      'model',
+      'brand',
       'description'
     ])
 
@@ -28,7 +35,16 @@ export default class CarsController {
   /**
    * Show individual record
    */
-  // async show({ params }: HttpContext) {}
+  async show({ params,response }: HttpContext) {
+    const car = await Car.find(params.id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    car.load('documents')
+    car.load('equipments')
+
+    return response.send(car)
+  }
 
 
   /**
@@ -38,6 +54,9 @@ export default class CarsController {
     const car = await Car.findOrFail(params.id)
     const data = request.only([
       'name',
+      'license_plate',
+      'model',
+      'brand',
       'description'
     ])
 

@@ -10,7 +10,9 @@
 import ArticlesController from '#controllers/articles_controller'
 import CaissesController from '#controllers/caisses_controller'
 import CarsController from '#controllers/cars_controller'
+import DocumentController from '#controllers/documents_controller'
 import EnterprisesController from '#controllers/enterprises_controller'
+import EquipmentController from '#controllers/equipment_controller'
 import RequisitionsController from '#controllers/requisitions_controller'
 import SuppliersController from '#controllers/suppliers_controller'
 import UserAuthController from '#controllers/user_auth_controller'
@@ -38,6 +40,9 @@ router.get('/requisition/comments/:requisition_id',RequisitionsController.protot
 router.post('/requisition/approve/compta/:requisition_id',RequisitionsController.prototype.ApproveCompta)
 router.get('/requisition/articles/:requisition_id',RequisitionsController.prototype.requisition_articles)
 router.post('/requisition/approve/direction/:requisition_id',RequisitionsController.prototype.approvDirection)
+
+router.resource('/documents',DocumentController).apiOnly();
+router.resource('/equipment',EquipmentController).apiOnly();
 
 }).prefix('/api');
 
