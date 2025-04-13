@@ -3,6 +3,7 @@ import { BaseModel, column, manyToMany } from '@adonisjs/lucid/orm'
 import Equipment from './equipment.js'
 import type { ManyToMany } from '@adonisjs/lucid/types/relations'
 import Document from './document.js'
+
 export default class Car extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
@@ -30,19 +31,17 @@ export default class Car extends BaseModel {
 
   @manyToMany(() => Equipment, {
     pivotTable: 'car_equipment',
-    localKey: 'id',
     pivotForeignKey: 'car_id',
-    relatedKey: 'id',
     pivotRelatedForeignKey: 'equipment_id',
+    pivotColumns: ['expiry_date', 'is_present'],
   })
   declare equipments: ManyToMany<typeof Equipment>
 
   @manyToMany(() => Document, {
     pivotTable: 'car_document',
-    localKey: 'id',
     pivotForeignKey: 'car_id',
-    relatedKey: 'id',
     pivotRelatedForeignKey: 'document_id',
+    pivotColumns: ['expiry_date', 'is_present'],
   })
   declare documents: ManyToMany<typeof Document>
 }
