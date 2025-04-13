@@ -16,7 +16,7 @@ export default class extends BaseSchema {
       table.bigInteger('equipment_id')
       .unsigned()
       .references('id')
-      .inTable('equipments')
+      .inTable('equipment')
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
       
