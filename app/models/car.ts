@@ -30,7 +30,7 @@ export default class Car extends BaseModel {
   declare updatedAt: DateTime
 
   @manyToMany(() => Equipment, {
-    pivotTable: 'car_equipment',
+    pivotTable: 'car_equipments',
     pivotForeignKey: 'car_id',
     pivotRelatedForeignKey: 'equipment_id',
     pivotColumns: ['expiry_date', 'is_present'],
@@ -38,7 +38,7 @@ export default class Car extends BaseModel {
   declare equipments: ManyToMany<typeof Equipment>
 
   @manyToMany(() => Document, {
-    pivotTable: 'car_document',
+    pivotTable: 'car_documents',
     pivotForeignKey: 'car_id',
     pivotRelatedForeignKey: 'document_id',
     pivotColumns: ['expiry_date', 'is_present'],
