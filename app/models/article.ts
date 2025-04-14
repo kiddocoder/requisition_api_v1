@@ -32,7 +32,16 @@ export default class Article extends BaseModel {
   declare image: string | null
 
   @column()
-  declare image_name: string | null 
+  declare image_name: string | null
+
+  @column()
+  declare prix_unitaire: number
+  
+  @column()
+  declare quantite: number
+
+  @column()
+  declare status: string // en_stock, stock_faible, rupture_de_stock
 
   @column()
   declare isDeleted: boolean

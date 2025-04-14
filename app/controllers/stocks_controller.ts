@@ -7,22 +7,6 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db';
 import { DateTime } from 'luxon';
 
-interface StockItem {
-  article_id: number
-  quantite: number
-  prix_unitaire: number
-  prix_total: number
-}
-
-interface StockRequest {
-  items: StockItem[]
-  supplier_id: number
-  transaction_type: 'cash' | 'credit'
-  avance_credit?: number
-  user_id: number
-}
-
-
 export default class StocksController {
 
   private getStockStatus(quantity: number): string {
@@ -50,25 +34,43 @@ export default class StocksController {
    */
   async store({ request, response }: HttpContext) {
     const trx = await db.transaction()
-
+  
     try {
-      const {
-        items,
-        supplier_id,
-        transaction_type,
-        avance_credit = 0,
-        user_id,
-      } = request.all() as StockRequest
-
+      const { items, user_id } = request.all() as {
+        items: Array<{
+          article_id: number
+          quantite: number
+          prix_unitaire: number
+          prix_total: number
+          supplier_id: number
+          transaction_type: 'cash' | 'credit'
+          avance_credit?: number
+        }>
+        user_id: number
+      }
+  
+      // Track payments for cash transactions by supplier
+      const supplierPayments: Record<number, number> = {}
+  
       // Process each stock item
       for (const item of items) {
-        const { article_id, quantite, prix_unitaire, prix_total } = item
-
-        // Check if article exists in stock
+        const { 
+          article_id, 
+          quantite, 
+          prix_unitaire, 
+          prix_total, 
+          supplier_id,
+          transaction_type,
+          avance_credit = 0 
+        } = item
+  
+        // Check if article exists in stock for this supplier
         const existingStock = await Stock.query({ client: trx })
           .where('article_id', article_id)
+          .where('supplier_id', supplier_id)
+          .orderBy('created_at', 'desc')
           .first()
-
+  
         if (existingStock) {
           // Save old price to price history
           await PriceHistory.create(
@@ -77,11 +79,11 @@ export default class StocksController {
               prix_unitaire: existingStock.prix_unitaire,
               quantite: existingStock.quantite,
               date: DateTime.now(),
-              description: `Prix avant mise à jour (${existingStock.prix_unitaire} FCFA)`,
+              description: `Prix avant mise à jour (${existingStock.prix_unitaire} BIF)`,
             },
             { client: trx }
           )
-
+  
           // Update existing stock
           const newQuantity = existingStock.quantite + quantite
           await existingStock
@@ -90,10 +92,12 @@ export default class StocksController {
               prix_unitaire,
               prix_total: prix_unitaire * newQuantity,
               status: this.getStockStatus(newQuantity),
+              transaction_type,
+              avance_credit,
             })
             .useTransaction(trx)
             .save()
-
+  
           // Create stock movement
           await StockMovement.create(
             {
@@ -125,7 +129,7 @@ export default class StocksController {
             },
             { client: trx }
           )
-
+  
           // Create stock movement
           await StockMovement.create(
             {
@@ -139,7 +143,7 @@ export default class StocksController {
             },
             { client: trx }
           )
-
+  
           // Save price history
           await PriceHistory.create(
             {
@@ -152,21 +156,46 @@ export default class StocksController {
             { client: trx }
           )
         }
-
-        // Update article current price
+  
+                // Update article current price and total quantity across all suppliers
         const article = await Article.findOrFail(article_id, { client: trx })
-        article.prix_unitaire = prix_unitaire
-        await article.useTransaction(trx).save()
-      }
 
-      // Handle payment if transaction is cash
-      if (transaction_type === 'cash') {
-        const totalAmount = items.reduce((sum, item) => sum + item.prix_total, 0)
-        
+        // Calculate new total quantity by summing all stock entries for this article
+        const stocks = await Stock.query({ client: trx })
+          .where('article_id', article_id)
+          .orderBy('created_at', 'desc')
+          .exec()
+
+        const totalQuantityResults = stocks.map(stock => stock.quantite)
+        const totalQuantity = totalQuantityResults.reduce((acc, k) => acc + k, 0)
+
+        const newTotalQuantity = totalQuantity || 0
+
+        article.merge({
+          prix_unitaire: prix_unitaire, // Update to latest price
+          quantite: newTotalQuantity,   // Update to sum of all stock quantities
+          status: this.getStockStatus(newTotalQuantity) // Update status based on total
+        })
+
+        await article.useTransaction(trx).save()
+
+        // Track payment if transaction is cash or credit 
+        if (transaction_type === 'cash') {
+          supplierPayments[supplier_id] = (supplierPayments[supplier_id] || 0) + prix_total
+        } else if (transaction_type === 'credit') {
+          supplierPayments[supplier_id] =
+            (supplierPayments[supplier_id] || 0) +
+            prix_total -
+            Number((prix_unitaire * quantite * avance_credit) / 100);
+        }
+      }
+  
+      // Create payment histories for cash transactions
+      for (const [supplierId, amount] of Object.entries(supplierPayments)) {
         await PaymentHistory.create(
           {
-            supplier_id,
-            amount: totalAmount,
+            supplier_id: Number(supplierId),
+            amount,
             payment_date: DateTime.now(),
             payment_method: 'cash',
             user_id,
@@ -175,9 +204,9 @@ export default class StocksController {
           { client: trx }
         )
       }
-
+  
       await trx.commit()
-      return response.status(201).json({ message: 'Stock updated successfully' })
+      return response.status(201).json({ message: 'Stock mis à jour avec succès' })
     } catch (error) {
       await trx.rollback()
       return response.status(500).json({ error: error.message })

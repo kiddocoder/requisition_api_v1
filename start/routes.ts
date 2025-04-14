@@ -15,6 +15,7 @@ import DocumentController from '#controllers/documents_controller'
 import EnterprisesController from '#controllers/enterprises_controller'
 import EquipmentController from '#controllers/equipment_controller'
 import RequisitionsController from '#controllers/requisitions_controller'
+import StocksController from '#controllers/stocks_controller'
 import SuppliersController from '#controllers/suppliers_controller'
 import UserAuthController from '#controllers/user_auth_controller'
 import UsersController from '#controllers/users_controller'
@@ -52,6 +53,7 @@ router.post('/car/documents/:id',DocumentController.prototype.addCarDocuments);
 router.post('/car/equipments/:id',EquipmentController.prototype.addCarEquipments);
 
 router.resource('article_categories', ArticleCategoriesController).apiOnly();
+router.resource('stocks',StocksController).apiOnly();
 
 }).prefix('/api');
 

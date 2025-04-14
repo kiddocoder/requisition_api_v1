@@ -10,6 +10,8 @@ export const ArticleFactory = factory
       description: faker.lorem.sentence(),
       image: faker.image.url(),
       image_name: faker.system.commonFileName(),
+      prix_unitaire: faker.number.int({ min: 1, max: 1000 }),
+      quantite: faker.number.int({ min: 1, max: 100 }),
     }
   })
   .build()
