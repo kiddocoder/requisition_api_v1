@@ -6,7 +6,7 @@ export default class ArticlesController {
    * Display a list of resource
    */
   async index({response}: HttpContext) {
-    const articles = await Article.query().where('is_deleted',false) || [];
+    const articles = await Article.query().where('is_deleted',false).preload('stocks').orderBy('created_at','desc').exec() || [];
     return response.send(articles)
   }
 

@@ -1,7 +1,8 @@
-import {  BaseModel, beforeCreate, column, manyToMany } from '@adonisjs/lucid/orm'
-import type { ManyToMany } from '@adonisjs/lucid/types/relations'
+import {  BaseModel, beforeCreate, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Requisition from './requisition.js'
+import Stock from './stock.js'
 
 export default class Article extends BaseModel {
   @column({ isPrimary: true })
@@ -60,4 +61,10 @@ export default class Article extends BaseModel {
     ]
   })
   declare requisitions: ManyToMany<typeof Requisition>
+
+  @hasMany(() => Stock, {
+    foreignKey: 'article_id',
+    localKey: 'id',
+  })
+  declare stocks: HasMany<typeof Stock>
 }
