@@ -44,6 +44,12 @@ router.post('/requisition/approve/direction/:requisition_id',RequisitionsControl
 router.resource('/documents',DocumentController).apiOnly();
 router.resource('/equipment',EquipmentController).apiOnly();
 
+router.get('/car/documents/:id',CarsController.prototype.getCarDocuments);
+router.get('/car/equipments/:id',CarsController.prototype.getCarEquipments);
+
+router.post('/car/documents/:id',DocumentController.prototype.addCarDocuments);
+router.post('/car/equipments/:id',EquipmentController.prototype.addCarEquipments);
+
 }).prefix('/api');
 
 router.get('/attachments/:filename', RequisitionsController.prototype.serveAttachment);

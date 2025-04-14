@@ -20,7 +20,7 @@ export default class Document extends BaseModel {
   declare updatedAt: DateTime
 
    @manyToMany(() => Car, {
-      pivotTable: 'car_document',
+      pivotTable: 'car_documents',
       localKey: 'id',
       pivotForeignKey: 'document_id',
       relatedKey: 'id',

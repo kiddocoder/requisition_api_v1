@@ -1,5 +1,8 @@
+import Car from '#models/car';
+import CarDocument from '#models/car_document';
 import Document from '#models/document';
 import type { HttpContext } from '@adonisjs/core/http'
+
 
 export default class DocumentController {
   /**
@@ -58,5 +61,34 @@ export default class DocumentController {
     const document = await Document.findOrFail(params.id);
     await document.delete();
     return response.ok({ message: 'Document deleted' })
+  }
+
+
+  /** add car document */
+  async addCarDocuments({ params,response ,request}: HttpContext) {
+    const car = await Car.findOrFail(params.id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    const documents = await request.input('documents')
+    if(!documents){
+      return response.badRequest({ message: 'Documents not found' })
+    }
+    // check if documents exist
+    const documentIds = documents.map((doc: { id: number }) => doc.id)
+    const existingDocuments = await Document.query().whereIn('id', documentIds).exec()
+    if (existingDocuments.length !== documentIds.length) {
+      return response.badRequest({ message: 'Some documents do not exist' })
+    }
+    await CarDocument.createMany(
+      documents.map((doc:any) => ({
+        car_id: car.id,
+        document_id: doc.id,
+        expiry_date: doc.expiry_date,
+        is_present: doc.is_present
+      }))
+    )
+   
+    return response.ok({ message: 'Documents added to car successfully' })
   }
 }

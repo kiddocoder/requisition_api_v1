@@ -72,4 +72,25 @@ export default class CarsController {
     await car.delete();
     return response.ok({ message: 'Car deleted' })
   }
+ 
+  /* get car documents */
+  async getCarDocuments({ params,response }: HttpContext) {
+    const car = await Car.findOrFail(params.id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    await car.load('documents')
+    return response.ok(car.documents)
+  }
+
+  /* get car equipments */
+  async getCarEquipments({ params,response }: HttpContext) {
+    const car = await Car.findOrFail(params.id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    await car.load('equipments')
+    return response.ok(car.equipments)
+  }
+
 }

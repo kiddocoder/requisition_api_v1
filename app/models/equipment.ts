@@ -19,7 +19,7 @@ export default class Equipment extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
   @manyToMany(() => Car, {
-    pivotTable: 'car_equipment',
+    pivotTable: 'car_equipments',
     localKey: 'id',
     pivotForeignKey: 'equipment_id',
     relatedKey: 'id',

@@ -1,3 +1,5 @@
+import Car from '#models/car';
+import CarEquipment from '#models/car_equipment';
 import Equipment from '#models/equipment'
 import type { HttpContext } from '@adonisjs/core/http'
 
@@ -58,5 +60,26 @@ export default class EquipmentController {
     const equipment = await Equipment.findOrFail(params.id);
     await equipment.delete();
     return response.ok({ message: 'Equipment deleted' })
+  }
+  /**
+   * Add equipment to a car
+   */
+  async addCarEquipments({ params, request,response }: HttpContext) {
+    const car_id = params.id
+    const car = await Car.findOrFail(car_id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    const equipments = await request.input('equipments');
+
+    await CarEquipment.createMany(
+      equipments.map((equipment: any) => ({
+        car_id: car.id,
+        equipment_id: equipment.id,
+        expiry_date: equipment.expiry_date,
+        is_present: equipment.is_present,
+      }))
+    );
+    return response.created({ message: 'Equipments added to car' })
   }
 }
