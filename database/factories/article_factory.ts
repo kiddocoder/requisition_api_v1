@@ -8,8 +8,8 @@ export const ArticleFactory = factory
       reference: faker.string.uuid(),
       unite_mesure: faker.person.jobType(),
       description: faker.lorem.sentence(),
-      image: faker.system.commonFileName(),
-      image_name: faker.image.url(),
+      image: faker.image.url(),
+      image_name: faker.system.commonFileName(),
     }
   })
   .build()
