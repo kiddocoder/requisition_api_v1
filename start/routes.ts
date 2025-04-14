@@ -7,6 +7,7 @@
 |
 */
 
+import ArticleCategoriesController from '#controllers/article_categories_controller'
 import ArticlesController from '#controllers/articles_controller'
 import CaissesController from '#controllers/caisses_controller'
 import CarsController from '#controllers/cars_controller'
@@ -49,6 +50,8 @@ router.get('/car/equipments/:id',CarsController.prototype.getCarEquipments);
 
 router.post('/car/documents/:id',DocumentController.prototype.addCarDocuments);
 router.post('/car/equipments/:id',EquipmentController.prototype.addCarEquipments);
+
+router.resource('article_catefories', ArticleCategoriesController).apiOnly();
 
 }).prefix('/api');
 
