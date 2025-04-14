@@ -8,18 +8,27 @@ export default class extends BaseSchema {
       table.increments('id').primary()
 
       table
-        .integer('article_id')
+        .bigInteger('article_id')
         .unsigned()
         .references('id')
         .inTable('articles')
         .onDelete('CASCADE')
 
         table
-        .integer('supplier_id')
+        .bigInteger('supplier_id')
         .unsigned()
         .nullable()
         .references('id')
         .inTable('suppliers')
+        .onDelete('CASCADE')
+        .onUpdate('CASCADE')
+
+      table
+        .bigInteger('user_id')
+        .unsigned()
+        .nullable()
+        .references('id')
+        .inTable('users')
         .onDelete('CASCADE')
         .onUpdate('CASCADE')
 

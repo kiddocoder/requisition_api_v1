@@ -1,54 +1,55 @@
 import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import User from './user.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Supplier from './supplier.js'
 import Article from './article.js'
-import User from './user.js'
+import Stock from './stock.js'
 
-export default class Stock extends BaseModel {
+export default class StockMovement extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
   @column()
-  declare supplier_id:number
+  declare user_id: number
 
   @column()
-  declare article_id:number
+  declare article_id: number
 
   @column()
-  declare user_id:number
+  declare stock_id: number
+
+  @column()
+  declare supplier_id: number
 
   @column()
   declare quantite: number
 
   @column()
-  declare prix_unitaire: number
+  declare type: string
 
   @column()
-  declare prix_total: number
+  declare description: string
 
-  @column()
-  declare avance_credit: number
-
-  @column()
-  declare transaction_type: string // cash ou credit
-
-  @column()
-  declare status: string // en_stock, stock_faible, rupture_de_stock
-  
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  // Define any relationships 
+  // Define any relationships
 
   @belongsTo(() => Article, {
     foreignKey: 'article_id',
     localKey: 'id',
   })
   declare article: BelongsTo<typeof Article>
+
+  @belongsTo(() => Stock, {
+    foreignKey: 'stock_id',
+    localKey: 'id',
+  })
+  declare stock: BelongsTo<typeof Stock>  
 
   @belongsTo(() => Supplier, {
     foreignKey: 'supplier_id',
@@ -62,4 +63,5 @@ export default class Stock extends BaseModel {
   })
   declare user: BelongsTo<typeof User>
 
+  
 }
