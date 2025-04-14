@@ -14,6 +14,9 @@ export default class Article extends BaseModel {
   declare uniqueId: string
 
   @column()
+  declare reference : string
+
+  @column()
   declare unite_mesure: string 
 
   @column()

@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.bigIncrements('id').notNullable().unsigned().primary()
       table.string('unique_id',25).nullable()
       table.string('name').notNullable()
+      table.string('reference').nullable()
       table.string('unite_mesure').defaultTo("N/A")
       table.string('description').nullable().defaultTo(" Pas de description")
       table.string('image').nullable()
