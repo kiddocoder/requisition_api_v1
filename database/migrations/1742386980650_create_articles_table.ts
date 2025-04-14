@@ -7,6 +7,14 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
       table.string('unique_id',25).nullable()
+      table.bigInteger('category_id')
+      .nullable()
+      .unsigned()
+      .references('id')
+      .inTable('article_categories')
+      .onDelete('SET NULL')
+      .onUpdate('CASCADE')
+    
       table.string('name').notNullable()
       table.string('reference').nullable()
       table.string('unite_mesure').defaultTo("N/A")

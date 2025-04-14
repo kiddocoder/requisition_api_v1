@@ -1,8 +1,10 @@
-import {  BaseModel, beforeCreate, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
-import type { HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
+import {  BaseModel, beforeCreate, belongsTo, column, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import { DateTime } from 'luxon'
 import Requisition from './requisition.js'
 import Stock from './stock.js'
+import StockMovement from './stock_movement.js'
+import ArticleCategory from './article_category.js'
 
 export default class Article extends BaseModel {
   @column({ isPrimary: true })
@@ -13,6 +15,9 @@ export default class Article extends BaseModel {
 
   @column()
   declare uniqueId: string
+
+  @column()
+  declare category_id: number
 
   @column()
   declare reference : string
@@ -67,4 +72,16 @@ export default class Article extends BaseModel {
     localKey: 'id',
   })
   declare stocks: HasMany<typeof Stock>
+
+  @hasMany(() => StockMovement, {
+    foreignKey: 'article_id',
+    localKey: 'id',
+  })
+  declare stockMovements: HasMany<typeof StockMovement>
+
+  @belongsTo(() => ArticleCategory, {
+    foreignKey: 'category_id',
+    localKey: 'id',
+  })
+  declare category: BelongsTo<typeof ArticleCategory>
 }
