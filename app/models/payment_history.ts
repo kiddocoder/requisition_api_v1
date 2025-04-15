@@ -12,7 +12,7 @@ export default class PaymentHistory extends BaseModel {
   declare supplier_id: number
 
   @column()
-  declare user_id: number
+  declare user_id: number | null
 
   @column()
   declare amount: number

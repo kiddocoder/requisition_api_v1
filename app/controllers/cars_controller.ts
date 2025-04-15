@@ -1,4 +1,6 @@
 import Car from '#models/car'
+import CarDocument from '#models/car_document'
+import CarEquipment from '#models/car_equipment'
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class CarsController {
@@ -26,10 +28,28 @@ export default class CarsController {
       'license_plate',
       'model',
       'brand',
-      'description'
+      'description',
+      'equipments',
+      'documents'
     ])
 
     const car =  await Car.updateOrCreate({name:data.name},data)
+    if(data.equipments){
+      await CarEquipment.updateOrCreateMany(['car_id', 'equipment_id'],data.equipments.map((equipement: any) => ({
+        car_id: car.id,
+        equipment_id: equipement.id,
+        expiry_date: equipement.expiry_date,
+        is_present: equipement.is_present
+      })))
+    }else if(data.documents){
+      await CarDocument.updateOrCreateMany(['car_id', 'document_id'],data.documents.map((document: any) => ({
+        car_id: car.id,
+        document_id: document.id,
+        expiry_date: document.expiry_date,
+        is_present: document?.is_present || true
+      })))
+    }
+
     return response.created(car)
   }
   /**

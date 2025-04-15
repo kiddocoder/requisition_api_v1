@@ -14,7 +14,7 @@ export default class SuppliersController {
    * Handle form submission for the create action
    */
   public async store({ request, response }: HttpContext) {
-    const data = request.only(['name', 'adress', 'phone'])
+    const data = request.only(['name', 'address', 'phone'])
     const supplier = await Supplier.updateOrCreate({ name: data.name }, data)
     return response.json(supplier)
   }

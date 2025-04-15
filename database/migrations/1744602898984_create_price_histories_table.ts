@@ -13,6 +13,8 @@ export default class extends BaseSchema {
      
       table.bigInteger('quantite').defaultTo(0)
 
+      table.text('description').defaultTo('Pas de description')
+
       table.dateTime('date').defaultTo(DateTime.now().toSQLDate())
 
       table.timestamps()
