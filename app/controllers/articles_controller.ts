@@ -18,7 +18,13 @@ export default class ArticlesController {
    * Handle form submission for the create action
    */
   async store({ request,response }: HttpContext) {
-    const data = request.all();
+    const data = request.only([
+      'name',
+      'description',
+      'category_id',
+      'reference',
+      'unite_mesure'
+    ]);
     const article = await Article.updateOrCreate({name:data.name},data)
     return response.json(article)
   }
