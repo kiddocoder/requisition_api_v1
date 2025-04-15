@@ -53,14 +53,12 @@ export default class ArticlesController {
         return response.notFound({message:"Article category not found"})
       }
 
-      const articles =  ArticleCategory.query()
+      const articles =  Article.query()
       .where('category_id',params.id)
-      .preload('articles',(query) => {
-        query.preload('stocks')
-        query.preload('category')
-      })
+       .preload('stocks')
+       .preload('category')
       .orderBy('created','desc')
-      .select('articles')
+   
       
       return response.json(articles)
     }
