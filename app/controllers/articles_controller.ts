@@ -1,4 +1,5 @@
 import Article from '#models/article'
+import ArticleCategory from '#models/article_category';
 import type { HttpContext } from '@adonisjs/core/http'
 
 export default class ArticlesController {
@@ -43,4 +44,15 @@ export default class ArticlesController {
    * Delete record
   */ 
   //  async destroy({ params }: HttpContext) {}
+
+  
+    async getCategoryArticles({ params, response }: HttpContext) {
+      const articleCategory = await ArticleCategory.findOrFail(params.id)
+      const articles = await articleCategory.related('articles').query()
+      .preload('stocks')
+      .preload('category')
+      .orderBy('created','desc')
+      
+      return response.json(articles)
+    }
 }

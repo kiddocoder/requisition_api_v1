@@ -36,7 +36,10 @@ router.resource('users', UsersController).apiOnly()
 router.post('/users/login',UserAuthController.prototype.login);
 router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();
+
 router.resource('articles',ArticlesController).apiOnly();
+router.get('/category/articles/:id',ArticlesController.prototype.getCategoryArticles);
+
 router.resource('suppliers',SuppliersController).apiOnly();
 router.post("procurement",RequisitionsController.prototype.approvisionnement);
 router.resource('cars',CarsController).apiOnly();

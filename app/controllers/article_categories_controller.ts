@@ -7,7 +7,8 @@ export default class ArticleCategoriesController {
    * Display a list of resource
    */
   async index({ response }: HttpContext) {
-    const articleCategories = await ArticleCategory.all()
+    const articleCategories = await ArticleCategory.query()
+    .orderBy('created_at', 'desc')
     return response.json(articleCategories)
   }
 
@@ -48,4 +49,7 @@ export default class ArticleCategoriesController {
     await articleCategory.delete()
     return response.json({ message: 'Article category deleted successfully' })
   }
+
+ 
+
 }
