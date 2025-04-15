@@ -48,10 +48,19 @@ export default class ArticlesController {
   
     async getCategoryArticles({ params, response }: HttpContext) {
       const articleCategory = await ArticleCategory.findOrFail(params.id)
-      const articles = await articleCategory.related('articles').query()
-      .preload('stocks')
-      .preload('category')
+
+      if(!articleCategory){
+        return response.notFound({message:"Article category not found"})
+      }
+
+      const articles =  ArticleCategory.query()
+      .where('category_id',params.id)
+      .preload('articles',(query) => {
+        query.preload('stocks')
+        query.preload('category')
+      })
       .orderBy('created','desc')
+      .select('articles')
       
       return response.json(articles)
     }
