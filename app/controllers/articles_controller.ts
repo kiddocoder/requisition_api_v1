@@ -57,7 +57,7 @@ export default class ArticlesController {
       .where('category_id',params.id)
        .preload('stocks')
        .preload('category')
-      .orderBy('created','desc')
+      .orderBy('created_at','desc')
    
       
       return response.json(articles)
