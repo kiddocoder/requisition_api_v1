@@ -42,7 +42,9 @@ export default class CarsController {
         expiry_date: equipement.expiry_date,
         is_present: equipement.is_present
       })))
-    }else if(data.documents.length > 0){
+    }
+    
+    if(data.documents.length > 0){
       await CarDocument.updateOrCreateMany(['car_id', 'document_id'],data.documents.map((document: any) => ({
         car_id: car.id,
         document_id: document.document_id,
