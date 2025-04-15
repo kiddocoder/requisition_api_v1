@@ -34,17 +34,18 @@ export default class CarsController {
     ])
 
     const car =  await Car.updateOrCreate({name:data.name},data)
+
     if(data.equipments.length > 0){
       await CarEquipment.updateOrCreateMany(['car_id', 'equipment_id'],data.equipments.map((equipement: any) => ({
         car_id: car.id,
-        equipment_id: equipement.id,
+        equipment_id: equipement.equipment_id,
         expiry_date: equipement.expiry_date,
         is_present: equipement.is_present
       })))
-    }else if(data.documents.length>0){
+    }else if(data.documents.length > 0){
       await CarDocument.updateOrCreateMany(['car_id', 'document_id'],data.documents.map((document: any) => ({
         car_id: car.id,
-        document_id: document.id,
+        document_id: document.document_id,
         expiry_date: document.expiry_date,
         is_present: document?.is_present || true
       })))
