@@ -53,7 +53,7 @@ export default class ArticlesController {
         return response.notFound({message:"Article category not found"})
       }
 
-      const articles =  Article.query()
+      const articles =  await Article.query()
       .where('category_id',params.id)
        .preload('stocks')
        .preload('category')
