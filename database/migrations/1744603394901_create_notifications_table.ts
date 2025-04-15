@@ -16,9 +16,9 @@ export default class extends BaseSchema {
 
       table.string('message').notNullable()
 
-      table.string('type').notNullable() 
+      table.string('type').notNullable()  //
 
-      table.string('link').nullable()
+      table.string('link').nullable().defaultTo('#')
 
       table.string('icon').nullable() 
 

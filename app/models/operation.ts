@@ -10,13 +10,13 @@ export default class Operation extends BaseModel {
   declare id: number
 
   @column()
-  declare operation_type_id:number
+  declare operation_type_id:number | null
 
   @column()
-  declare user_id:number
+  declare user_id:number | null
 
   @column()
-  declare caisse_id:number
+  declare caisse_id:number | null
 
   @column()
   declare amount :number
@@ -47,7 +47,4 @@ export default class Operation extends BaseModel {
     foreignKey:"caisse_id"
   })
   declare caisse:BelongsTo<typeof Caisse>
-
-
-
 }

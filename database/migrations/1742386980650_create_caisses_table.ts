@@ -9,6 +9,15 @@ export default class extends BaseSchema {
       table.string('name').nullable()
       table.bigInteger('budget').defaultTo(0)
       table.bigInteger('solde_actuel').defaultTo(0)
+      
+      table.bigInteger('alimented_by')
+      .unsigned()
+      .nullable()
+      .references('id')
+      .inTable('users')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE')
+
       table.boolean('is_deleted').defaultTo(false)
       table.timestamps()
     })

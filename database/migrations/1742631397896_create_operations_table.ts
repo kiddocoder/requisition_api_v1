@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.bigIncrements('id').unsigned().notNullable().primary()
 
       table.bigInteger('caisse_id')
+      .nullable()
         .unsigned()
         .references('id')
         .inTable('caisses')
@@ -15,6 +16,7 @@ export default class extends BaseSchema {
         .onUpdate('CASCADE')
 
       table.bigInteger('user_id')
+      .nullable()
         .unsigned()
         .references('id')
         .inTable('users')
@@ -23,6 +25,7 @@ export default class extends BaseSchema {
 
       table.bigInteger('amount').defaultTo(0)
       table.bigInteger('operation_type_id')
+      .nullable()
         .unsigned()
         .references('id')
         .inTable('operation_types')

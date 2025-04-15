@@ -8,7 +8,7 @@ export default class Notification extends BaseModel {
   declare id: number
 
   @column()
-  declare user_id: number
+  declare user_id: number | null
 
   @column()
   declare to : string

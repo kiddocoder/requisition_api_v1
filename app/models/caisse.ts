@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import Enterprise from './enterprise.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import User from './user.js'
 
 
 export default class Caisse extends BaseModel {
@@ -17,6 +18,9 @@ export default class Caisse extends BaseModel {
   @column()
  declare solde_actuel:number
 
+ @column()
+ declare alimented_by:number | null
+
   @column()
   declare is_deleted: boolean
 
@@ -26,7 +30,17 @@ export default class Caisse extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => Enterprise)
-  declare nterprise: BelongsTo<typeof Enterprise>
+  @belongsTo(() => Enterprise,{
+    foreignKey:'enteprise_id',
+    localKey:'id'
+  })
+  declare enterprise: BelongsTo<typeof Enterprise>
+
+
+  @belongsTo(() => User,{
+    foreignKey:'alimented_by',
+    localKey:'id'
+  })
+  declare alimentor: BelongsTo<typeof User>
 
 }
