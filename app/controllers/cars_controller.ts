@@ -87,10 +87,39 @@ export default class CarsController {
       'brand',
       'max_kilometers',
       'max_litters',
-      'description'
+      'description',
+      'equipments',
+      'documents'
     ])
 
-    await car.merge(data).save()
+    await car.merge({
+      name: data.name,
+      license_plate: data.license_plate,
+      model: data.model,
+      brand: data.brand,
+      max_kilometers: data.max_kilometers,
+      max_litters: data.max_litters,
+      description: data.description
+    }).save()
+
+    if(data.equipments.length > 0){
+      await CarEquipment.updateOrCreateMany(['car_id', 'equipment_id'],data.equipments.map((equipement: any) => ({
+        car_id: car.id,
+        equipment_id: equipement.equipment_id,
+        expiry_date: equipement.expiry_date,
+        is_present: equipement.is_present
+      })))
+    }
+    
+    if(data.documents.length > 0){
+      await CarDocument.updateOrCreateMany(['car_id', 'document_id'],data.documents.map((document: any) => ({
+        car_id: car.id,
+        document_id: document.document_id,
+        expiry_date: document.expiry_date,
+        is_present: document?.is_present || true
+      })))
+    }
+    
     return car;
   }
 
