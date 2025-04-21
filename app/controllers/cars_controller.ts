@@ -9,8 +9,6 @@ export default class CarsController {
    */
   async index({response}: HttpContext) {
     const cars = await Car.query()
-    .preload('documents')
-    .preload('equipments')
     .orderBy('created_at', 'desc')
     .exec()
 
@@ -63,8 +61,6 @@ export default class CarsController {
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
-    car.load('documents')
-    car.load('equipments')
 
     return response.send(car)
   }
@@ -102,8 +98,10 @@ export default class CarsController {
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
-    await car.load('documents')
-    return response.ok(car.documents)
+    const doc = await CarDocument.query().where('car_id', params.id)
+    .preload('car')
+    .exec();
+    return response.ok(doc)
   }
 
   /* get car equipments */
@@ -112,8 +110,24 @@ export default class CarsController {
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
-    await car.load('equipments')
-    return response.ok(car.equipments)
+    const eq = CarEquipment.query().where('car_id', params.id)
+    .preload('car')
+    .exec();
+    return response.ok(eq)
+  }
+
+  async getAllCarEquipmentsAndDocuments({ params,response }: HttpContext) {
+    const car = await Car.findOrFail(params.id);
+    if(!car){
+      return response.notFound({ message: 'Car not found' })
+    }
+    const eq = CarEquipment.query().where('car_id', params.id)
+    .preload('car')
+    .exec();
+    const doc = await CarDocument.query().where('car_id', params.id)
+    .preload('car')
+    .exec();
+    return response.ok({...car,equipments: eq, documents: doc})
   }
 
 }

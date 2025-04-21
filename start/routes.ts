@@ -57,6 +57,7 @@ router.get('/car/equipments/:id',CarsController.prototype.getCarEquipments);
 
 router.post('/car/documents/:id',DocumentController.prototype.addCarDocuments);
 router.post('/car/equipments/:id',EquipmentController.prototype.addCarEquipments);
+router.get('/all/equipments/documents/:id',CarsController.prototype.getAllCarEquipmentsAndDocuments);
 
 router.resource('article_categories', ArticleCategoriesController).apiOnly();
 router.resource('stocks',StocksController).apiOnly();
