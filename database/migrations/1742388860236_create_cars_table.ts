@@ -10,6 +10,8 @@ export default class extends BaseSchema {
       table.string('license_plate').notNullable()
       table.string('model').notNullable()
       table.string('brand').notNullable()
+      table.bigInteger('max_kilometers').nullable().defaultTo(0)
+      table.bigInteger('max_litters').nullable().defaultTo(0)
       table.string('description').notNullable()
       table.timestamps()
     })

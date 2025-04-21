@@ -26,6 +26,8 @@ export default class CarsController {
       'license_plate',
       'model',
       'brand',
+      'max_kilometers',
+      'max_litters',
       'description',
       'equipments',
       'documents'
@@ -76,6 +78,8 @@ export default class CarsController {
       'license_plate',
       'model',
       'brand',
+      'max_kilometers',
+      'max_litters',
       'description'
     ])
 
@@ -123,9 +127,11 @@ export default class CarsController {
     }
     const eq = CarEquipment.query().where('car_id', params.id)
     .preload('car')
+    .preload('equipment')
     .exec();
     const doc = await CarDocument.query().where('car_id', params.id)
     .preload('car')
+    .preload('document')
     .exec();
     return response.ok({...car,equipments: eq, documents: doc})
   }

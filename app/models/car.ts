@@ -18,6 +18,12 @@ export default class Car extends BaseModel {
   declare brand: string
 
   @column()
+  declare maxKilometers: number | 0
+
+  @column()
+  declare maxLitters: number | 0
+
+  @column()
   declare description: string
 
   @column.dateTime({ autoCreate: true })
