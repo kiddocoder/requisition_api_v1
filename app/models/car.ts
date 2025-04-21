@@ -9,7 +9,7 @@ export default class Car extends BaseModel {
   declare name: string
 
   @column()
-  declare licensePlate: string
+  declare license_plate: string
 
   @column()
   declare model: string
@@ -18,10 +18,10 @@ export default class Car extends BaseModel {
   declare brand: string
 
   @column()
-  declare maxKilometers: number | 0
+  declare max_kilometers: number | 0
 
   @column()
-  declare maxLitters: number | 0
+  declare max_litters: number | 0
 
   @column()
   declare description: string

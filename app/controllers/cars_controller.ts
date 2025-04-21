@@ -33,7 +33,14 @@ export default class CarsController {
       'documents'
     ])
 
-    const car =  await Car.updateOrCreate({name:data.name},data)
+    const car =  await Car.updateOrCreate({name:data.name},{
+      license_plate: data.license_plate,
+      model: data.model,
+      brand: data.brand,
+      max_kilometers: data.max_kilometers,
+      max_litters: data.max_litters,
+      description: data.description
+  })
 
     if(data.equipments.length > 0){
       await CarEquipment.updateOrCreateMany(['car_id', 'equipment_id'],data.equipments.map((equipement: any) => ({
