@@ -121,7 +121,7 @@ export default class CarsController {
   }
 
   async getAllCarEquipmentsAndDocuments({ params,response }: HttpContext) {
-    const car = await Car.findOrFail(params.id);
+    const car = await Car.find(params.id);
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
