@@ -18,6 +18,14 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
 
+      table.bigInteger('enterprise_id')
+      .unsigned()
+      .nullable()
+      .references('id')
+      .inTable('enterprises')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE')
+
       table.boolean('is_deleted').defaultTo(false)
       table.timestamps()
     })

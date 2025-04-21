@@ -9,6 +9,7 @@ export default class BudgetsController {
     const budgets = await Budget.query()
     .preload('caisse')
     .preload('creator')
+    .preload('enterprise')
     .orderBy('created_at','desc')
 
     return response.send(budgets || [])

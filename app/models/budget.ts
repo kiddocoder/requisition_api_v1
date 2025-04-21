@@ -3,6 +3,7 @@ import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import User from './user.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import Caisse from './caisse.js'
+import Enterprise from './enterprise.js'
 
 export default class Budget extends BaseModel {
   @column({ isPrimary: true })
@@ -15,7 +16,13 @@ export default class Budget extends BaseModel {
   declare montant:number
 
   @column()
+  declare description:string
+
+  @column()
   declare created_by:number | null
+
+  @column()
+  declare enteprise_id:number | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -34,4 +41,11 @@ export default class Budget extends BaseModel {
     localKey:'id'
   })
   declare caisse:BelongsTo<typeof Caisse>
+
+    @belongsTo(()=>Enterprise,{
+      foreignKey:'enteprise_id',
+      localKey:'id'
+    })
+    declare enterprise: BelongsTo<typeof Enterprise>
+  
 }

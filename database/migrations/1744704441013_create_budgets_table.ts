@@ -13,10 +13,19 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
 
+      table.bigInteger('enterprise_id')
+      .nullable()
+      .unsigned()
+      .references('id')
+      .inTable('enterprises')
+      .onDelete('CASCADE')
+      .onUpdate('CASCADE')
+
+      table.text('description').nullable().defaultTo('N/A')
+
       table.bigInteger('montant').notNullable().defaultTo(0)
 
       table.bigInteger('created_by').nullable().unsigned().references('id').inTable('users').onDelete('CASCADE').onUpdate('CASCADE')
-
 
 
       table.timestamps()

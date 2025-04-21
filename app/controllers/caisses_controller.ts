@@ -10,7 +10,10 @@ export default class CaissesController {
    * Display a list of resource
    */
   async index({response}: HttpContext) {
-    const caisses =  await Caisse.all();
+    const caisses =  await Caisse.query()
+    .preload('enterprise')
+    .orderBy('created_at','desc');
+
     return response.send(caisses || [])
   }
 
@@ -73,13 +76,15 @@ export default class CaissesController {
     const data = request.only([
       'caisse_id',
       'budget',
-      'alimented_by'
+      'alimented_by',
+      'enteprise_id'
     ])
 
     const newBudget = caisse.budget + data.budget;
     await Budget.create({
       caisse_id:caisse.id,
     created_by:data.alimented_by,
+    enteprise_id:data.enteprise_id,
     montant:newBudget
     })
 

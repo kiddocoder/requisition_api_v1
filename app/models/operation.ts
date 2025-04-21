@@ -4,6 +4,7 @@ import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import User from './user.js'
 import OperationType from './operation_type.js'
 import Caisse from './caisse.js'
+import Enterprise from './enterprise.js'
 
 export default class Operation extends BaseModel {
   @column({ isPrimary: true })
@@ -17,6 +18,9 @@ export default class Operation extends BaseModel {
 
   @column()
   declare caisse_id:number | null
+
+  @column()
+  declare enterprise_id:number | null
 
   @column()
   declare amount :number
@@ -47,4 +51,11 @@ export default class Operation extends BaseModel {
     foreignKey:"caisse_id"
   })
   declare caisse:BelongsTo<typeof Caisse>
+
+    @belongsTo(()=>Enterprise,{
+      foreignKey:'enteprise_id',
+      localKey:'id'
+    })
+    declare enteprise: BelongsTo<typeof Enterprise>
+  
 }

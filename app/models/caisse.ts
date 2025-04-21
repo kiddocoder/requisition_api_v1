@@ -21,6 +21,9 @@ export default class Caisse extends BaseModel {
  @column()
  declare alimented_by:number | null
 
+ @column()
+ declare enteprise_id:number | null
+
   @column()
   declare is_deleted: boolean
 
