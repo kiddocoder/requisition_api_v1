@@ -34,7 +34,7 @@ export default class Caisse extends BaseModel {
   declare updatedAt: DateTime
 
   @belongsTo(() => Enterprise,{
-    foreignKey:'enteprise_id',
+    foreignKey:'enterprise_id',
     localKey:'id'
   })
   declare enterprise: BelongsTo<typeof Enterprise>
