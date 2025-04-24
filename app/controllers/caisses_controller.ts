@@ -84,14 +84,14 @@ export default class CaissesController {
       'caisse_id',
       'budget',
       'alimented_by',
-      'enteprise_id'
+      'enterprise_id'
     ])
 
     const newBudget = caisse.budget + data.budget;
     await Budget.create({
       caisse_id:caisse.id,
     created_by:data.alimented_by,
-    enteprise_id:data.enteprise_id,
+    enterprise_id:data.enterprise_id,
     montant:newBudget
     })
 
