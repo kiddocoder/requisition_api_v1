@@ -39,11 +39,15 @@ router.resource('requisitions',RequisitionsController).apiOnly();
 
 router.resource('articles',ArticlesController).apiOnly();
 router.get('/category/articles/:id',ArticlesController.prototype.getCategoryArticles);
+router.get('/suppliers/articles/:id',ArticlesController.prototype.getSupplierArticles);
 
 router.resource('suppliers',SuppliersController).apiOnly();
 router.post("procurement",RequisitionsController.prototype.approvisionnement);
 router.resource('cars',CarsController).apiOnly();
+
 router.resource('caisses',CaissesController).apiOnly();
+router.get('/caisses/company/:id',CaissesController.prototype.getCaisseByEnterprise);
+
 router.get('/requisition/comments/:requisition_id',RequisitionsController.prototype.requisitionComments)
 router.post('/requisition/approve/compta/:requisition_id',RequisitionsController.prototype.ApproveCompta)
 router.get('/requisition/articles/:requisition_id',RequisitionsController.prototype.requisition_articles)

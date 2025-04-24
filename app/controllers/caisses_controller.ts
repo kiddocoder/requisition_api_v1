@@ -24,9 +24,16 @@ export default class CaissesController {
   async store({ request,response }: HttpContext) {
     const data = request.only([
       'name',
-      'budget'
+      'budget',
+      'enterprise_id'
     ])
-    const caisse =  await Caisse.updateOrCreate({name:data.name},data);
+    const caisse =  await Caisse.updateOrCreate({name:data.name},{
+      name:data.name,
+      budget:data.budget,
+      solde_actuel:data.budget,
+      enterprise_id:data.enterprise_id || null,
+    });
+
     await Budget.create({
       caisse_id:caisse.id,
       montant:caisse.budget,
@@ -110,6 +117,17 @@ export default class CaissesController {
     })
 
     return response.ok({message :`${caisse.name} Alimented with new budget ${newBudget} on exisiting solde ${caisse.solde_actuel}`})
+  }
+
+  /* get caisse by enterprise */
+
+  async getCaisseByEnterprise({params,response}:HttpContext){
+    const enterprise = await Caisse.find(params.id);
+    if(!enterprise){
+      return response.notFound({message:"Enterprise not Found !"})
+    }
+    const caisses = await Caisse.query().where('enterprise_id',params.id).orderBy('created_at','desc').exec();
+    return response.send(caisses || {message:"Not casse found !"})
   }
 
 }
