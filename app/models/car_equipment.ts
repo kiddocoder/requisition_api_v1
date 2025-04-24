@@ -27,9 +27,13 @@ export default class CarEquipment extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  @belongsTo(() => Car)
+  @belongsTo(() => Car,{
+    foreignKey:'car_id'
+  })
   declare car: BelongsTo<typeof Car>
 
-  @belongsTo(() => Equipment)
+  @belongsTo(() => Equipment,{
+     foreignKey:'equipment_id'
+  })
   declare equipment: BelongsTo<typeof Equipment>
 }
