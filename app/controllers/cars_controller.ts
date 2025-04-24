@@ -150,7 +150,7 @@ export default class CarsController {
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
-    const eq = CarEquipment.query().where('car_id', params.id)
+    const eq = await CarEquipment.query().where('car_id', params.id)
     .preload('car')
     .exec();
     return response.ok(eq)
@@ -161,7 +161,7 @@ export default class CarsController {
     if(!car){
       return response.notFound({ message: 'Car not found' })
     }
-    const eq = CarEquipment.query().where('car_id', params.id)
+    const eq = await CarEquipment.query().where('car_id', params.id)
     .preload('car')
     .preload('equipment')
     .exec();
