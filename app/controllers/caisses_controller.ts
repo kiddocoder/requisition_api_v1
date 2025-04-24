@@ -30,7 +30,7 @@ export default class CaissesController {
     const caisse =  await Caisse.updateOrCreate({name:data.name},{
       name:data.name,
       budget:data.budget,
-      solde_actuel:data.budget,
+      solde_actuel:0,
       enterprise_id:data.enterprise_id || null,
     });
 
