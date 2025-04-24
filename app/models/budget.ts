@@ -22,7 +22,7 @@ export default class Budget extends BaseModel {
   declare created_by:number | null
 
   @column()
-  declare enteprise_id:number | null
+  declare enterprise_id:number | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -43,7 +43,7 @@ export default class Budget extends BaseModel {
   declare caisse:BelongsTo<typeof Caisse>
 
     @belongsTo(()=>Enterprise,{
-      foreignKey:'enteprise_id',
+      foreignKey:'enterprise_id',
       localKey:'id'
     })
     declare enterprise: BelongsTo<typeof Enterprise>
