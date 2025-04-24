@@ -88,6 +88,14 @@ export default class CaissesController {
     ])
 
     const newBudget = caisse.budget + data.budget;
+
+    await caisse.merge({
+      budget:newBudget,
+      alimented_by:data.alimented_by || null,
+      solde_actuel:newBudget
+    }).save()
+    
+    // create a budget
     await Budget.create({
       caisse_id:caisse.id,
     created_by:data.alimented_by,

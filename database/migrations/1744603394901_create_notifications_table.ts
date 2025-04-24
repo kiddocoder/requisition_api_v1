@@ -12,11 +12,11 @@ export default class extends BaseSchema {
 
       table.string('to').nullable().defaultTo('all')//all, admin, user
 
-      table.string('title').notNullable()
+      table.string('title')
 
-      table.string('message').notNullable()
+      table.string('message')
 
-      table.string('type').notNullable()  //
+      table.string('type')
 
       table.string('link').nullable().defaultTo('#')
 
