@@ -29,14 +29,14 @@ export default class CaissesController {
     ])
     const caisse =  await Caisse.updateOrCreate({name:data.name},{
       name:data.name,
-      budget:data.budget,
+      budget:Number(data.budget),
       solde_actuel:0,
       enterprise_id:data.enterprise_id || null,
     });
 
     await Budget.create({
       caisse_id:caisse.id,
-      montant:caisse.budget,
+      montant:Number(data.budget),
       created_by:null,
       description:'Budget initial',
       enterprise_id:data.enterprise_id || null
@@ -89,7 +89,7 @@ export default class CaissesController {
       'description'
     ])
 
-    const newBudget = caisse.budget + data.budget;
+    const newBudget = parseInt(data.budget) + Number(caisse.solde_actuel);
 
     await caisse.merge({
       budget:newBudget,
