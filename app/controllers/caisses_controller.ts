@@ -38,7 +38,8 @@ export default class CaissesController {
       caisse_id:caisse.id,
       montant:caisse.budget,
       created_by:null,
-      
+      description:'Budget initial',
+      enterprise_id:data.enterprise_id || null
     })
     return response.send(caisse)
   } 
@@ -84,7 +85,8 @@ export default class CaissesController {
       'caisse_id',
       'budget',
       'alimented_by',
-      'enterprise_id'
+      'enterprise_id',
+      'description'
     ])
 
     const newBudget = caisse.budget + data.budget;
@@ -94,13 +96,14 @@ export default class CaissesController {
       alimented_by:data.alimented_by || null,
       solde_actuel:newBudget
     }).save()
-    
+
     // create a budget
     await Budget.create({
       caisse_id:caisse.id,
     created_by:data.alimented_by,
     enterprise_id:data.enterprise_id,
-    montant:newBudget
+    montant:newBudget,
+    description:data.description || null
     })
 
     // create a notification
