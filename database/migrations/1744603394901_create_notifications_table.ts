@@ -8,7 +8,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').unsigned().primary()
 
-      table.bigInteger('user_id').unsigned().references('id').inTable('users').onDelete('CASCADE').onUpdate('CASCADE')
+      table.bigInteger('user_id').nullable().unsigned().references('id').inTable('users').onDelete('CASCADE').onUpdate('CASCADE')
 
       table.string('to').nullable().defaultTo('all')//all, admin, user
 
