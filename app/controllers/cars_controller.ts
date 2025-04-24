@@ -140,6 +140,7 @@ export default class CarsController {
     }
     const doc = await CarDocument.query().where('car_id', params.id)
     .preload('car')
+    .preload('document')
     .exec();
     return response.ok(doc)
   }
@@ -152,6 +153,7 @@ export default class CarsController {
     }
     const eq = await CarEquipment.query().where('car_id', params.id)
     .preload('car')
+    .preload('equipment')
     .exec();
     return response.ok(eq)
   }
