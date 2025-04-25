@@ -62,6 +62,24 @@ export default class CaissesController {
       'alimented_by'
     ])
     await caisse.merge(data).save()
+
+    if(!data.budget){
+    await Budget.create({
+      caisse_id:caisse.id,
+      montant:Number(data.budget),
+      created_by:data.alimented_by || null,
+      description:'Mise à jour du budget initial de la caisse',
+      enterprise_id:caisse.enterprise_id || null
+    })
+  }
+
+    await Notification.create({
+      title:"Caisse updated",
+      message:`${caisse.name} updated with new budget ${data.budget}`,
+      to:'user',
+      user_id:data.alimented_by || null
+    })
+
     return caisse
   }
 
@@ -94,7 +112,7 @@ export default class CaissesController {
     await caisse.merge({
       budget:newBudget,
       alimented_by:data.alimented_by || null,
-      solde_actuel:newBudget
+      solde_actuel:caisse.solde_actuel
     }).save()
 
     // create a budget
