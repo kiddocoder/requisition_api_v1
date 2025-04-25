@@ -22,10 +22,15 @@ export default class EquipmentController {
   async store({ request,response }: HttpContext) {
     const data = request.only([
       'name',
+      'requiredForDriving',
       'description'
     ])
 
-    const equipment = await Equipment.updateOrCreate({name:data.name},data)
+    const equipment = await Equipment.updateOrCreate({name:data.name},{
+      name:data.name,
+      required_for_driving:data.requiredForDriving || true,
+      description:data.description || null
+    })
     return response.send(equipment)
   }
 
@@ -47,9 +52,14 @@ export default class EquipmentController {
     const equipment = await Equipment.findOrFail(params.id)
     const data = request.only([
       'name',
+      'requiredForDriving',
       'description'
     ])
-    await equipment.merge(data).save()
+    await equipment.merge({
+      name: data.name,
+      required_for_driving: data.requiredForDriving || true,
+      description: data.description || null
+    }).save()
     return response.send(equipment)
   }
 

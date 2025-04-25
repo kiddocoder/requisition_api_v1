@@ -12,6 +12,7 @@ import ArticlesController from '#controllers/articles_controller'
 import BudgetsController from '#controllers/budgets_controller'
 import CaissesController from '#controllers/caisses_controller'
 import CarsController from '#controllers/cars_controller'
+import DepartmentsController from '#controllers/departments_controller'
 import DocumentController from '#controllers/documents_controller'
 import EnterprisesController from '#controllers/enterprises_controller'
 import EquipmentController from '#controllers/equipment_controller'
@@ -71,6 +72,8 @@ router.resource('stocks',StocksController).apiOnly();
 router.resource('notifications',NotificationsController).apiOnly();
 router.resource('budgets',BudgetsController).apiOnly();
 router.resource('operations',OperationsController).apiOnly();
+
+router.resource('departments',DepartmentsController).apiOnly();
 
 }).prefix('/api');
 

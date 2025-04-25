@@ -7,6 +7,7 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.bigIncrements('id').notNullable().unsigned().primary()
       table.string('name').notNullable()
+      table.boolean('required_for_driving').defaultTo(true)
       table.string('description').nullable().defaultTo(" Pas de description pour cette équipement")
       table.timestamps()
     })

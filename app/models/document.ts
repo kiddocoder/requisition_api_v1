@@ -11,6 +11,9 @@ export default class Document extends BaseModel {
   declare name: string
 
   @column()
+  declare required_for_driving: boolean
+
+  @column()
   declare description: string
 
   @column.dateTime({ autoCreate: true })

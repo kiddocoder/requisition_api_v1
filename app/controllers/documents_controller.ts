@@ -23,10 +23,15 @@ export default class DocumentController {
   async store({ request,response }: HttpContext) {
     const data = request.only([
       'name',
+      'requiredForDriving',
       'description'
     ])
 
-    const document = await Document.updateOrCreate({name:data.name},data)
+    const document = await Document.updateOrCreate({name:data.name},{
+      name:data.name,
+      required_for_driving:data.requiredForDriving || true,
+      description:data.description || null
+    })
     return response.send(document)
   }
 
@@ -48,9 +53,14 @@ export default class DocumentController {
     const document = await Document.findOrFail(params.id)
     const data = request.only([
       'name',
+      'requiredForDriving',
       'description'
     ])
-    await document.merge(data).save()
+    await document.merge({
+      name: data.name,
+      required_for_driving: data.requiredForDriving || true,
+      description: data.description || null
+    }).save()
     return response.send(document)
   }
 
