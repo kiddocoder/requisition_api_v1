@@ -53,9 +53,9 @@ export default class Operation extends BaseModel {
   declare caisse:BelongsTo<typeof Caisse>
 
     @belongsTo(()=>Enterprise,{
-      foreignKey:'enteprise_id',
+      foreignKey:'enterprise_id',
       localKey:'id'
     })
-    declare enteprise: BelongsTo<typeof Enterprise>
+    declare enterprise: BelongsTo<typeof Enterprise>
   
 }

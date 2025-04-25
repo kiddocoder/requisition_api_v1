@@ -196,7 +196,7 @@ export default class CaissesController {
       return response.notFound({message:"Caisse not Found !"})
     }
     const operations = await Operation.query().where('caisse_id',params.id)
-    .preload('enteprise')
+    .preload('enterprise')
     .preload('operation_type')
     .preload('user')
     .orderBy('created_at','desc')
