@@ -138,7 +138,7 @@ export default class CaissesController {
       'description'
     ])
 
-    const newBudget = parseInt(data.budget) + Number(caisse.solde_actuel);
+    const newBudget = parseInt(data.budget) + Number(caisse.budget) 
 
     await caisse.merge({
       budget:newBudget,
