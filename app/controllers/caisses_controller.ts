@@ -25,22 +25,43 @@ export default class CaissesController {
     const data = request.only([
       'name',
       'budget',
-      'enterpriseId'
+      'enterpriseId',
+      'alimented_by'
     ])
     const caisse =  await Caisse.updateOrCreate({name:data.name},{
       name:data.name,
       budget:Number(data.budget),
       solde_actuel:0,
+      alimented_by:data.alimented_by || null,
       enterprise_id:data.enterpriseId|| null,
     });
 
     await Budget.create({
       caisse_id:caisse.id,
       montant:Number(data.budget),
-      created_by:null,
+      created_by: data.alimented_by || null,
       description:'Budget initial',
-      enterprise_id:data.enterprise_id || null
+      enterprise_id:data.enterpriseId|| null
     })
+
+    await Notification.create({
+      title:"Caisse created",
+      message:`${caisse.name} created with new budget ${data.budget}`,
+      to:'user',
+      user_id:data.alimented_by || null,
+    })
+
+    const operation = await OperationType.findBy({name:'deposits'}) || null;
+
+    // create operation
+    await Operation.create({
+      operation_type_id:operation?.id || null,
+      user_id:data.alimented_by || null,
+      amount:data.budget,
+      caisse_id:caisse.id ,
+      description:`${caisse.name} created with new budget ${data.budget}`
+    })
+
     return response.send(caisse)
   } 
   /**
@@ -78,6 +99,16 @@ export default class CaissesController {
       message:`${caisse.name} updated with new budget ${data.budget}`,
       to:'user',
       user_id:data.alimented_by || null
+    })
+
+    const operation = await OperationType.findBy({name:'deposits'}) || null;
+    // create operation
+    await Operation.create({
+      operation_type_id:operation?.id || null,
+      user_id:data.alimented_by || null,
+      amount:data.budget,
+      caisse_id:caisse.id ,
+      description:`${caisse.name} updated with new budget ${data.budget}`
     })
 
     return caisse
@@ -157,6 +188,36 @@ export default class CaissesController {
     }
     const caisses = await Caisse.query().where('enterprise_id',params.id).orderBy('created_at','desc').exec();
     return response.send(caisses || {message:"Not casse found !"})
+  }
+
+  async getCaisseOperations({params,response}:HttpContext){
+    const caisse = await Caisse.find(params.id);
+    if(!caisse){
+      return response.notFound({message:"Caisse not Found !"})
+    }
+    const operations = await Operation.query().where('caisse_id',params.id)
+    .preload('enteprise')
+    .preload('operation_type')
+    .preload('user')
+    .orderBy('created_at','desc')
+    .exec();
+
+    return response.send(operations || {message:"Not casse found !"})
+  }
+
+  async getCaisseBudgets({params,response}:HttpContext){
+    const caisse = await Caisse.find(params.id);
+    if(!caisse){
+      return response.notFound({message:"Caisse not Found !"})
+    }
+    const budgets = await Budget.query().where('caisse_id',params.id)
+    .preload('enterprise')
+    .preload('creator')
+    .preload('caisse')
+    .orderBy('created_at','desc')
+    .exec();
+
+    return response.send(budgets || {message:"Not casse found !"})
   }
 
 }

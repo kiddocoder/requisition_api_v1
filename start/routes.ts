@@ -48,6 +48,8 @@ router.resource('cars',CarsController).apiOnly();
 router.resource('caisses',CaissesController).apiOnly();
 router.get('/caisses/company/:id',CaissesController.prototype.getCaisseByEnterprise);
 router.post('/caisses/alimentation/:id',CaissesController.prototype.alimentation);
+router.get('/caisses/operations/:id',CaissesController.prototype.getCaisseOperations);
+router.get('caisses/budgets/:id',CaissesController.prototype.getCaisseBudgets);
 
 router.get('/requisition/comments/:requisition_id',RequisitionsController.prototype.requisitionComments)
 router.post('/requisition/approve/compta/:requisition_id',RequisitionsController.prototype.ApproveCompta)
