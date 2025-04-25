@@ -41,12 +41,10 @@ export default class Budget extends BaseModel {
     localKey:'id'
   })
   declare caisse:BelongsTo<typeof Caisse>
-
-    @belongsTo(()=>Enterprise,{
+  
+  @belongsTo(()=>Enterprise,{
       foreignKey:'enterprise_id',
       localKey:'id'
-    })
-    declare enterprise: BelongsTo<typeof Enterprise>
-
-  
+  })
+  declare enterprise: BelongsTo<typeof Enterprise>
 }
