@@ -16,29 +16,20 @@ export default class BudgetsController {
   }
 
   /**
-   * Display form to create a new record
-   */
-  async create({}: HttpContext) {}
-
-  /**
    * Handle form submission for the create action
    */
-  async store({ request }: HttpContext) {}
+  // async store({ request }: HttpContext) {}
 
   /**
    * Show individual record
    */
-  async show({ params }: HttpContext) {}
+  // async show({ params }: HttpContext) {}
 
-  /**
-   * Edit individual record
-   */
-  async edit({ params }: HttpContext) {}
 
   /**
    * Handle form submission for the edit action
    */
-  async update({ params, request }: HttpContext) {}
+  // async update({ params, request }: HttpContext) {}
 
   /**
    * Delete record
