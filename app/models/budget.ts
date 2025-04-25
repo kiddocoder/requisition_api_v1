@@ -47,5 +47,6 @@ export default class Budget extends BaseModel {
       localKey:'id'
     })
     declare enterprise: BelongsTo<typeof Enterprise>
+
   
 }

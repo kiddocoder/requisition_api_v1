@@ -7,7 +7,10 @@ export default class EnterprisesController {
    */
   async index({response}: HttpContext) {
     return response.json(
-      await Enterprise.all()
+      await Enterprise.query()
+      .preload('budgets')
+      .preload('caisses')
+      .orderBy('created_at','desc') || []
     )
   }
 

@@ -1,5 +1,8 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany,computed } from '@adonisjs/lucid/orm'
+import Budget from './budget.js'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
+import Caisse from './caisse.js'
 
 export default class Enterprise extends BaseModel {
   @column({ isPrimary: true })
@@ -19,4 +22,30 @@ export default class Enterprise extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  @hasMany(()=> Budget,{
+    localKey:'id',
+    foreignKey:'enterprise_id'
+  })
+  declare budgets:HasMany<typeof Budget>
+
+
+  @hasMany(()=>Caisse,{
+    localKey:'id',
+    foreignKey:'enterprise_id'
+  })
+  declare caisses:HasMany<typeof Caisse>
+
+  @computed()
+  get budgetsCount(){
+    return this.budgets.length;
+  }
+
+  @computed()
+  get totalBudget(){
+    return this.budgets.reduce((total, budget) => {
+      return total + budget.montant
+    }, 0)
+  }
+  
 }
