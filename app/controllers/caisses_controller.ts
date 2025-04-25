@@ -25,13 +25,13 @@ export default class CaissesController {
     const data = request.only([
       'name',
       'budget',
-      'enterprise_id'
+      'enterpriseId'
     ])
     const caisse =  await Caisse.updateOrCreate({name:data.name},{
       name:data.name,
       budget:Number(data.budget),
       solde_actuel:0,
-      enterprise_id:data.enterprise_id || null,
+      enterprise_id:data.enterpriseId|| null,
     });
 
     await Budget.create({
