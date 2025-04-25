@@ -12,8 +12,7 @@ export default class BudgetsController {
     .preload('enterprise')
     .orderBy('created_at','desc')
 
-
-    return response.send(budgets || [])
+    return response.json(budgets || [])
   }
 
   /**
