@@ -11,6 +11,7 @@ export default class BudgetsController {
     .preload('creator')
     .preload('enterprise')
     .orderBy('created_at','desc')
+    .exec();
 
     return response.send(budgets || [])
   }
