@@ -34,5 +34,9 @@ export default class BudgetsController {
   /**
    * Delete record
    */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ params,response }: HttpContext) {
+    const budget = await Budget.findOrFail(params.id);
+    await budget.delete();
+    return response.ok({ message: 'Budget deleted' })
+  }
 }
