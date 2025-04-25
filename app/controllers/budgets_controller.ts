@@ -7,36 +7,48 @@ export default class BudgetsController {
    */
   async index({response}: HttpContext) {
     const budgets = await Budget.query()
-    .preload('caisse')
-    .preload('creator')
-    .preload('enterprise')
-    .orderBy('created_at','desc')
+      .preload('enterprise')
+      .preload('creator')
+      .preload('caisse')
+      .orderBy('created_at', 'desc')
 
     return response.json(budgets || [])
   }
 
   /**
+   * Display form to create a new record
+   */
+  async create({}: HttpContext) {}
+
+  /**
    * Handle form submission for the create action
    */
-  // async store({ request }: HttpContext) {}
+  async store({ request }: HttpContext) {}
 
   /**
    * Show individual record
    */
-  // async show({ params }: HttpContext) {}
+  async show({ params }: HttpContext) {}
 
+  /**
+   * Edit individual record
+   */
+  async edit({ params }: HttpContext) {}
 
   /**
    * Handle form submission for the edit action
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request }: HttpContext) {}
 
   /**
    * Delete record
    */
   async destroy({ params,response }: HttpContext) {
-    const budget = await Budget.findOrFail(params.id);
-    await budget.delete();
-    return response.ok({ message: 'Budget deleted' })
+    const budget = await Budget.find(params.id)
+    if (!budget) {
+      return response.status(404).json({ message: 'Budget not found' })
+    }
+    await budget.delete()
+    return response.json({ message: 'Budget deleted successfully' })
   }
 }

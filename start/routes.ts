@@ -70,10 +70,10 @@ router.get('/all/equipments/documents/:id',CarsController.prototype.getAllCarEqu
 router.resource('article_categories', ArticleCategoriesController).apiOnly();
 router.resource('stocks',StocksController).apiOnly();
 router.resource('notifications',NotificationsController).apiOnly();
-router.resource('budgets',BudgetsController).apiOnly();
 router.resource('operations',OperationsController).apiOnly();
-
 router.resource('departments',DepartmentsController).apiOnly();
+
+router.resource('budgets',BudgetsController).apiOnly();
 
 }).prefix('/api');
 
