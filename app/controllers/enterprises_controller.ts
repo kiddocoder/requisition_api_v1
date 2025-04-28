@@ -24,7 +24,7 @@ export default class EnterprisesController {
       'name',
       'description'
     ])
-    const enterprise = await Enterprise.updateOrCreate({name:request.input('name')},{is_deleted:true,...data})
+    const enterprise = await Enterprise.updateOrCreate({name:request.input('name')},{is_deleted:false,...data})
     return enterprise;
   }
 
