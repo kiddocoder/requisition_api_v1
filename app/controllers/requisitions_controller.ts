@@ -471,11 +471,12 @@ export default class RequisitionsController {
       return response.notFound({message:"Requisition not found"})
     }
 
-    const item = await RequisitionItem.find(params.item_id);
+    const item = await RequisitionItem.query().where('requisition_id',params.requisition_id).where('article_id',params.item_id).first();
+
     if(!item){
       return response.notFound({message:"Item not found"})
     }
-    item.delete();
+   await  item.delete();
     return response.ok(item)
   }
   
