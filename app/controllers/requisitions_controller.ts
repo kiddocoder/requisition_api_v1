@@ -160,11 +160,11 @@ export default class RequisitionsController {
   
       // 3. Traitement des articles
 
-       // supprimer tous les articles de cette requisition qui n'ont etait selectionne
-       await RequisitionItem.query({client:trx})
-       .where('requisition_id', params.id)
-       .whereNotIn('article_id', items.map((item: any) => item.article_id))
-       .delete()
+             // Remove all articles from this requisition that were not selected
+      await RequisitionItem.query({ client: trx })
+        .where('requisition_id', params.id)
+        .whereNotIn('article_id', items.map((item: any) => item.article_id))
+        .delete();
 
        await Promise.all(items.map(async (item: any) => {
         // Mise à jour de l'unité de mesure si fournie
