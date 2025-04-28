@@ -175,17 +175,18 @@ export default class RequisitionsController {
         }
   
         // Mise à jour des items de la requête
-        await RequisitionItem.query({client:trx})
-          .where('requisition_id', params.id)
-          .where('article_id', item.article_id)
-          .update({
+        await RequisitionItem
+          .updateOrCreate({
+            requisition_id: params.id,
+            article_id: item.article_id
+          },{
             quantite_demande: Number(item.quantiteDemande) || 0,
             prix_unitaire: Number(item.prix_unitaire) || 0,
             prix_total: Number(item.prix_total) || 0,
             supplier_id: item.supplier_id || null,
             transaction_type: item.transaction_type || null,
             avance_credit: Number(item.avance_credit) || 0
-          });
+          },{client:trx});
       }));
   
       // 4. Enregistrement du commentaire si présent
