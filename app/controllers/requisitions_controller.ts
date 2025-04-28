@@ -136,7 +136,75 @@ export default class RequisitionsController {
   /**
    * Handle form submission for the edit action
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params, request,response }: HttpContext) {
+    const trx = await db.transaction();
+    try {
+      const data = request.only(['objet', 'titre', 'demendeur_id', 'enterprise_id']);
+      const comment = request.input('comment');
+      const date = DateTime.fromISO(request.input('date'));
+      const items = request.input('items') || [];
+  
+      if (!items.length) {
+        await trx.rollback();
+        return response.badRequest({ message: 'Au moins un article est requis' });
+      }
+  
+      // 2. Mise à jour de la requête principale
+      const requisition = await Requisition.query({ client: trx })
+        .where('id', params.id)
+        .update({
+          ...data,
+          date,
+          status: 'pending'
+        });
+  
+      // 3. Traitement des articles
+      await Promise.all(items.map(async (item: any) => {
+        // Mise à jour de l'unité de mesure si fournie
+        if (item.uniteMesure) {
+          await Article.query({client:trx})
+            .where('id', item.article_id)
+            .update({ 'unite_mesure': item.uniteMesure });
+        }
+  
+        // Mise à jour des items de la requête
+        await RequisitionItem.query({client:trx})
+          .where('requisition_id', params.id)
+          .where('article_id', item.article_id)
+          .update({
+            quantite_demande: Number(item.quantiteDemande) || 0,
+            prix_unitaire: Number(item.prix_unitaire) || 0,
+            prix_total: Number(item.prix_total) || 0,
+            supplier_id: item.supplier_id || null,
+            transaction_type: item.transaction_type || null,
+            avance_credit: Number(item.avance_credit) || 0
+          });
+      }));
+  
+      // 4. Enregistrement du commentaire si présent
+      if (comment) {
+        await RequisitionComment.updateOrCreate({
+          requisition_id: params.id,
+          user_id: data.demendeur_id
+        },
+          {
+          comment,
+          requisition_id: params.id,
+          user_id: data.demendeur_id
+        }, { client: trx });
+      }
+  
+      await trx.commit(); // Validation de la transaction
+      return response.ok(requisition);
+    } catch (error) {
+      await trx.rollback();
+      logger.error(error);
+      return response.status(500).json({
+        message: 'Erreur lors de la mise à jour de la requête',
+        error: process.env.NODE_ENV === 'development' ? error.message : null
+      });
+    }
+  }
 
   /**
    * Delete record
