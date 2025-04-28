@@ -160,12 +160,6 @@ export default class RequisitionsController {
   
       // 3. Traitement des articles
 
-             // Remove all articles from this requisition that were not selected
-      await RequisitionItem.query({ client: trx })
-        .where('requisition_id', params.id)
-        .whereNotIn('article_id', items.map((item: any) => item.article_id))
-        .delete();
-
        await Promise.all(items.map(async (item: any) => {
         // Mise à jour de l'unité de mesure si fournie
         if (item.uniteMesure) {
@@ -468,6 +462,21 @@ export default class RequisitionsController {
     .preload('demendeur')
     .orderBy('created_at', 'desc')
     return response.send(requisitions || [])
+  }
+
+  async deleteRequisisitionArticle({response,params}:HttpContext){
+
+    const requisition = await Requisition.find(params.requisition_id);
+    if(!requisition){
+      return response.notFound({message:"Requisition not found"})
+    }
+
+    const item = await RequisitionItem.find(params.item_id);
+    if(!item){
+      return response.notFound({message:"Item not found"})
+    }
+    item.delete();
+    return response.ok(item)
   }
   
 }
