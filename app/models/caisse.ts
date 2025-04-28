@@ -15,7 +15,7 @@ export default class Caisse extends BaseModel {
   @column()
   declare budget: number
 
-  @column()
+ @column()
  declare solde_actuel:number
 
  @column()
@@ -24,26 +24,26 @@ export default class Caisse extends BaseModel {
  @column()
  declare enterprise_id:number | null
 
-  @column()
-  declare is_deleted: boolean
+ @column()
+ declare is_deleted: boolean
 
-  @column.dateTime({ autoCreate: true })
-  declare createdAt: DateTime
+ @column.dateTime({ autoCreate: true })
+ declare createdAt: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true })
-  declare updatedAt: DateTime
+ @column.dateTime({ autoCreate: true, autoUpdate: true })
+ declare updatedAt: DateTime
 
-  @belongsTo(() => Enterprise,{
+ @belongsTo(() => Enterprise,{
     foreignKey:'enterprise_id',
     localKey:'id'
-  })
-  declare enterprise: BelongsTo<typeof Enterprise>
+ })
+ declare enterprise: BelongsTo<typeof Enterprise>
 
 
-  @belongsTo(() => User,{
+ @belongsTo(() => User,{
     foreignKey:'alimented_by',
     localKey:'id'
-  })
-  declare alimentor: BelongsTo<typeof User>
+ })
+ declare alimentor: BelongsTo<typeof User>
 
 }

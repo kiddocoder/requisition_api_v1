@@ -56,6 +56,9 @@ router.get('/requisition/comments/:requisition_id',RequisitionsController.protot
 router.post('/requisition/approve/compta/:requisition_id',RequisitionsController.prototype.ApproveCompta)
 router.get('/requisition/articles/:requisition_id',RequisitionsController.prototype.requisition_articles)
 router.post('/requisition/approve/direction/:requisition_id',RequisitionsController.prototype.approvDirection)
+router.get('/demandeur/requisitions/:id',RequisitionsController.prototype.getRequisitionByDemandeur)
+router.get('/enterprise/requisitions/:id',RequisitionsController.prototype.getRequisitionByEnterprise)
+
 
 router.resource('/documents',DocumentController).apiOnly();
 router.resource('/equipment',EquipmentController).apiOnly();

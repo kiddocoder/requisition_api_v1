@@ -38,14 +38,14 @@ export default class Enterprise extends BaseModel {
 
   @computed()
   get budgetsCount(){
-    return this.budgets.length;
+    return this.budgets?.length || 0;
   }
 
   @computed()
   get totalBudget(){
-    return this.budgets.reduce((total, budget) => {
+    return this.budgets?.reduce((total, budget) => {
       return total + budget.montant
-    }, 0)
+    }, 0) || 0
   }
   
 }

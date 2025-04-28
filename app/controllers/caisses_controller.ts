@@ -14,7 +14,11 @@ export default class CaissesController {
     .preload('enterprise')
     .orderBy('created_at','desc');
 
-    return response.send(caisses || [])
+    if(!caisses || caisses.length == 0){
+      return response.send([])
+    }
+
+    return response.send(caisses)
   }
 
 

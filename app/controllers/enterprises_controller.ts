@@ -6,20 +6,26 @@ export default class EnterprisesController {
    * Display a list of resource
    */
   async index({response}: HttpContext) {
-    return response.json(
-      await Enterprise.query()
+     const enterprises =  await Enterprise.query()
+     .where('is_deleted',false)
       .preload('budgets')
       .preload('caisses')
-      .orderBy('created_at','desc') || []
-    )
+      .orderBy('created_at','desc')
+
+      return response.send(enterprises)
   }
 
   /**
    * Handle form submission for the create action
    */
-  async store({ request,response }: HttpContext) {
-    const enterprise = await Enterprise.updateOrCreate({name:request.input('name')},request.all())
-    return response.json(enterprise)
+  async store({ request }: HttpContext) {
+
+    const data = request.only([
+      'name',
+      'description'
+    ])
+    const enterprise = await Enterprise.updateOrCreate({name:request.input('name')},{is_deleted:true,...data})
+    return enterprise;
   }
 
   /**

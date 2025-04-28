@@ -17,6 +17,7 @@ export default class UserAuthController {
     if(!isPasswordMatched) return response.unauthorized({message:"Incorrect Password"});
 
     if(user.is_deleted) return response.unauthorized({message:"User is deleted"});
+    user.load('enterprise');
 
       // Generate token with custom payload
       const token =  user.generateToken(user)

@@ -365,5 +365,33 @@ export default class RequisitionsController {
     requisition.save()
     return response.ok({message:"Requisition approuv directio"})
   }
+
+  async getRequisitionByDemandeur({response,params}:HttpContext){
+    const requisitions = await Requisition.query()
+    .where('demendeur_id',params.id)
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+      query.preload('supplier')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    return response.send(requisitions || [])
+  }
+
+  async getRequisitionByEnterprise({response,params}:HttpContext){
+    const requisitions = await Requisition.query()
+    .where('enterprise_id',params.id)
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+      query.preload('supplier')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    return response.send(requisitions || [])
+  }
   
 }
