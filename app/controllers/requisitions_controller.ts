@@ -249,11 +249,11 @@ export default class RequisitionsController {
   
       // 2. Ensuite, mettre à jour ou créer les articles
       for (const item of items) {
-        await RequisitionItem.updateOrCreate(
-          {
-            requisition_id: requisition.id,
-            article_id: item.article_id
-          },
+        await RequisitionItem.
+        query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .andWhere('article_id', item.article_id)
+        .update(
           {
             requisition_id: requisition.id,
             article_id: item.article_id,
@@ -263,8 +263,7 @@ export default class RequisitionsController {
             avance_credit: Number(item.avance_credit),
             supplier_id: item.supplier_id,
             quantite_demande: Number(item.quantite_demande)
-          },
-          { client: trx }
+          }
         );
       }
   
