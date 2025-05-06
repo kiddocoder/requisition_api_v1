@@ -211,7 +211,16 @@ export default class RequisitionsController {
   /**
    * Delete record
    */
-  // async destroy({ params }: HttpContext) {}
+  async destroy({ params,response }: HttpContext) {
+    const requisition =  await Requisition.find(params.id)
+
+    if(!requisition){
+      return response.notFound({message:"Requisition not found"})
+    }
+
+    await requisition.delete()
+    return response.ok(requisition)
+  }
 
   async approvisionnement({ response, request }: HttpContext) {
     const trx = await db.transaction();
