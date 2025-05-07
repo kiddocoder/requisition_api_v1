@@ -37,6 +37,7 @@ router.resource('users', UsersController).apiOnly()
 router.post('/users/login',UserAuthController.prototype.login);
 router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();
+router.get('/enterprise/users/:enterpise_id',UsersController.prototype.getEntepriseUsers)
 
 router.resource('articles',ArticlesController).apiOnly();
 router.get('/category/articles/:id',ArticlesController.prototype.getCategoryArticles);

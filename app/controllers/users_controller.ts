@@ -1,3 +1,4 @@
+import Enterprise from '#models/enterprise';
 import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
 import bcrypt from "bcryptjs";
@@ -86,5 +87,24 @@ export default class UsersController {
     user.is_deleted = true;
     await user.save()
     return {message:"User deleted successfully"}
+  }
+
+  /**
+   *  get enterprise users
+   */
+
+  async getEntepriseUsers({response,params}:HttpContext) {
+    const enterprise = await Enterprise.find(params.enterprise_id);
+    if(!enterprise){
+      return response.notFound({message:"Company not found!"})
+    }
+
+    const users =  await User.query()
+    .where('is_deleted',false)
+    .andWhere('enterprise_id',enterprise.id)
+    .preload('enterprise')
+    .exec()
+
+    return response.send(users || [])
   }
 }
