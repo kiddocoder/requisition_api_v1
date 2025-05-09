@@ -22,12 +22,12 @@ export default class UserAuthController {
     user.load('enterprise');
 
      // Check if password needs reset
-     if (user.must_reset_password) {
-      return response.status(403).json({
-        status: 'password reset required!',
-        message: 'You must reset your password before logging in'
-      })
-    }
+    //  if (user.must_reset_password) {
+    //   return response.status(403).json({
+    //     status: 'password reset required!',
+    //     message: 'You must reset your password before logging in'
+    //   })
+    // }
 
       // Generate token with custom payload
       const token =  user.generateToken(user)
