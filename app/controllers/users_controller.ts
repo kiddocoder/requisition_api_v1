@@ -9,9 +9,12 @@ export default class UsersController {
    * Display a list of resource
    */
   async index({response}: HttpContext) {
-    return response.json(
-      await User.all()
-    )
+   const users = await User.query()
+   .where('is_deleted',false)
+   .preload('enterprise')
+   .orderBy('created_at','desc')
+
+    return response.send(users || [])
   }
 
   /**
