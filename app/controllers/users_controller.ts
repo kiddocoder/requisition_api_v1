@@ -52,8 +52,12 @@ export default class UsersController {
    * Show individual record
    */
   async show({ params,response }: HttpContext) {
-    return response.send(
-      await User.find(params.id) || {message:"User not found" })
+   const user = await User.find(params.id)
+   if(!user){
+    return response.notFound({message:"User not found"})
+   }
+   user.load('enterprise')
+   return response.send(user)
   }
 
   /**
