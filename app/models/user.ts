@@ -20,10 +20,25 @@ export default class User extends BaseModel {
   declare post: string
 
   @column()
+  declare role: string
+
+  @column()
   declare email: string
 
   @column()
   declare password: string
+
+  @column()
+  declare is_temp_password: boolean
+
+  @column()
+  declare must_reset_password: boolean
+
+  @column()
+  declare password_reset_token: string | null
+
+  @column()
+  declare token_created_at: DateTime | null
 
   @column()
   declare is_deleted: boolean

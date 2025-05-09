@@ -35,6 +35,9 @@ router.group(() => {
 
 router.resource('users', UsersController).apiOnly()
 router.post('/users/login',UserAuthController.prototype.login);
+router.post('/super-admin/reset-password',UserAuthController.prototype.resetPassword);
+router.get('/user/require-reset/:id',UserAuthController.prototype.requireReset);
+
 router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();
 router.get('/enterprise/users/:enterprise_id',UsersController.prototype.getEntepriseUsers)
@@ -60,7 +63,6 @@ router.post('/requisition/approve/direction/:requisition_id',RequisitionsControl
 router.get('/demandeur/requisitions/:id',RequisitionsController.prototype.getRequisitionByDemandeur)
 router.get('/enterprise/requisitions/:id',RequisitionsController.prototype.getRequisitionByEnterprise)
 router.delete('/requisitions/items/article/:requisition_id/:item_id',RequisitionsController.prototype.deleteRequisisitionArticle)
-
 
 router.resource('/documents',DocumentController).apiOnly();
 router.resource('/equipment',EquipmentController).apiOnly();
