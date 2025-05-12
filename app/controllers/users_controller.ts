@@ -13,6 +13,9 @@ export default class UsersController {
    .where('is_deleted',false)
    .preload('enterprise')
    .orderBy('created_at','desc')
+   .orderBy('post','desc')
+   .orderBy('username','desc')
+   .exec();
 
     return response.send(users || [])
   }
