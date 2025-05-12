@@ -9,6 +9,7 @@ export default class UserAuthController {
   async login({response,request}: HttpContext) {
     const email = request.input('email');
     const password = request.input('password');
+    const enterprise_id = request.input('enterpise_id')
 
     const user = await User.findBy({email});
 
@@ -21,21 +22,16 @@ export default class UserAuthController {
     if(user.is_deleted) return response.unauthorized({message:"User is deleted"});
     user.load('enterprise');
 
-     // Check if password needs reset
-    //  if (user.must_reset_password) {
-    //   return response.status(403).json({
-    //     status: 'password reset required!',
-    //     message: 'You must reset your password before logging in'
-    //   })
-    // }
-
       // Generate token with custom payload
       const token =  user.generateToken(user)
 
       response.cookie('remember_me_token', token, {
         httpOnly: true,
-        
       })
+
+      if(enterprise_id){
+        user.enterprise_id = enterprise_id
+      }
 
     return response.json({message:"Login successful",user,token});
   }
