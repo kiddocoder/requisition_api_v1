@@ -1,6 +1,8 @@
+import AssignUser from '#models/assign_user';
 import Enterprise from '#models/enterprise';
 import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db';
 import bcrypt from "bcryptjs";
 
 
@@ -117,4 +119,60 @@ export default class UsersController {
 
     return response.send(users || [])
   }
+
+  async assignUsersOnCompanies({ response, request }: HttpContext) {
+    const usersIds = request.input('users');
+    const enterprisesIds = request.input('enterprises');
+  
+    // Validate inputs
+    if (!usersIds || !enterprisesIds) {
+      return response.badRequest({ message: "Users and enterprises IDs are required" });
+    }
+  
+    try {
+      // Get all users and enterprises at once to minimize database queries
+      const users = await User.query().whereIn('id', usersIds);
+      const enterprises = await Enterprise.query().whereIn('id', enterprisesIds);
+  
+      // Check if all users and enterprises exist
+      if (users.length !== usersIds.length) {
+        return response.notFound({ message: "One or more users not found" });
+      }
+      if (enterprises.length !== enterprisesIds.length) {
+        return response.notFound({ message: "One or more enterprises not found" });
+      }
+  
+      // Prepare relationships to insert
+      let relations:any = [];
+      for (const enterprise of enterprises) {
+        for (const user of users) {
+          relations.push({
+            user_id: user.id,
+            enterprise_id: enterprise.id
+          });
+        }
+      }
+  
+      // Use transaction for atomic operations
+      await db.transaction(async (trx) => {
+        // First delete existing relations for these users and enterprises to avoid duplicates
+        await AssignUser.query()
+          .whereIn('user_id', usersIds)
+          .whereIn('enterprise_id', enterprisesIds)
+          .useTransaction(trx)
+          .delete();
+  
+        // Then insert all new relations at once
+        await AssignUser.createMany(relations,{client:trx});
+      });
+  
+      return { message: "Users assigned successfully" };
+    } catch (error) {
+      return response.internalServerError({ 
+        message: "Failed to assign users to enterprises",
+        error: error.message 
+      });
+    }
+  }
+
 }
