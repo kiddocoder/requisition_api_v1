@@ -377,6 +377,7 @@ export default class RequisitionsController {
       'caisse_id',
       'voiture_id',
       'description',
+      'status'
     ]) 
 
     const getcomment = request.input('comment');
@@ -387,7 +388,7 @@ export default class RequisitionsController {
     if (!requisition || requisition.is_deleted) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
-    requisition.status = 'approved';
+    requisition.status = data.status ==='rejected' ? 'rejected': 'approved';
     requisition.approved_accounter = true;
     requisition.save();
 
