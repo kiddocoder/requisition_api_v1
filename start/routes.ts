@@ -37,6 +37,7 @@ router.resource('users', UsersController).apiOnly()
 router.post('/users/login',UserAuthController.prototype.login);
 router.post('/super-admin/reset-password',UserAuthController.prototype.resetPassword);
 router.get('/user/require-reset/:id',UserAuthController.prototype.requireReset);
+router.delete("/user/definitly/:id",UsersController.prototype.deleteDefinitlyUser);
 
 router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();

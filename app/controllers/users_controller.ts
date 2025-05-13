@@ -175,4 +175,14 @@ export default class UsersController {
     }
   }
 
+  async deleteDefinitlyUser({response,params}:HttpContext){
+    const user = await User.find(params.id);
+    if(!user){
+      return response.notFound({message:"User not found!"})
+    }
+
+    await user.delete();
+    return response.ok(user)
+  }
+
 }
