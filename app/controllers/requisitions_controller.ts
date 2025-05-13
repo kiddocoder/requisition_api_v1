@@ -387,7 +387,7 @@ export default class RequisitionsController {
     if (!requisition || requisition.is_deleted) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
-    requisition.status = 'pending';
+    requisition.status = 'approved';
     requisition.approved_accounter = true;
     requisition.save();
 
@@ -402,10 +402,10 @@ export default class RequisitionsController {
     )
     caisse.save();
 
-    const operation = await OperationType.findByOrFail({name:'expenses'})
-
+    const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
+    
     await Operation.create({
-      operation_type_id:operation.id,
+      operation_type_id:SaveOper.id,
       caisse_id:caisse.id,
       amount:total,
       user_id:user_id,
@@ -439,7 +439,7 @@ export default class RequisitionsController {
       return response.notFound({message:"Requisition not found!"})
     }
     requisition.approved_direction = status === 'approved';
-    requisition.status = status;
+    requisition.status = 'completed';
     requisition.save()
     return response.ok({message:"Requisition approuv directio"})
   }
