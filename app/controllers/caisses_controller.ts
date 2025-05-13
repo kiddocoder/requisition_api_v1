@@ -11,6 +11,7 @@ export default class CaissesController {
    */
   async index({response}: HttpContext) {
     const caisses =  await Caisse.query()
+    .where('is_deleted', false)
     .preload('enterprise')
     .orderBy('created_at','desc');
 
@@ -123,7 +124,8 @@ export default class CaissesController {
    */
   async destroy({ params,response }: HttpContext) {
     const caisse = await Caisse.findOrFail(params.id);
-    await caisse.delete();
+    caisse.is_deleted = true;
+    caisse.save();
     return response.ok({ message: 'Caisse deleted' })
   }
 
