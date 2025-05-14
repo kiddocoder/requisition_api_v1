@@ -41,13 +41,16 @@ export default class UsersController {
     ])
 
     const userk =  await User.findBy({email:data.email});
-    if(userk) return response.unauthorized({message:"Email already Taken"});
+    if(userk && !userk.is_deleted){
+       return response.unauthorized({message:"Email already Taken"});
+    } 
 
    // Hash password
    const hashedPassword = await bcrypt.hash(String(password), 10);
 
    const user = await User.create({
      ...data,
+     is_deleted:true,
      password:hashedPassword
    });
    return response.send({message:"User created successfully",user})
@@ -79,13 +82,19 @@ export default class UsersController {
       'post',
       'username'
     ])
-     // Hash password
-   const hashedPassword = await bcrypt.hash(String(password), 10);
+
+     // Hash password and merge hashed password to the user
+     if(String(password).trim() !=="" || String(password).trim() !==null || String(password).trim() !==undefined){
+        const hashedPassword = await bcrypt.hash(String(password), 10);
+        user.merge({
+          password:hashedPassword
+        })
+     }
 
    user.merge({
      ...data,
-     password:hashedPassword
    })
+
     await user.save()
     return response.json({message:"User updated successfully",user});
   }
