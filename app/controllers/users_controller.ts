@@ -84,8 +84,8 @@ export default class UsersController {
     ])
 
      // Hash password and merge hashed password to the user
-     if(String(password).trim() !=="" || String(password).trim() !==null || String(password).trim() !==undefined){
-        const hashedPassword = await bcrypt.hash(String(password), 10);
+     if(eval(password) !undefined || String(password).trim() !=='' || String(password).trim() !==null || String(password).trim() !==undefined){
+        const hashedPassword = await bcrypt.hash(password, 10);
         user.merge({
           password:hashedPassword
         })
