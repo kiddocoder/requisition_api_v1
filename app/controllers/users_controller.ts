@@ -50,7 +50,7 @@ export default class UsersController {
 
    const user = await User.create({
      ...data,
-     is_deleted:true,
+     is_deleted:false,
      password:hashedPassword
    });
    return response.send({message:"User created successfully",user})
