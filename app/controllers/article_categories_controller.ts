@@ -18,7 +18,7 @@ export default class ArticleCategoriesController {
    */
   async store({ request, response }: HttpContext) {
     const data = request.only(['name', 'description'])
-    const articleCategory = await ArticleCategory.create(data)
+    const articleCategory = await ArticleCategory.updateOrCreate({name:data.name},data)
     return response.json(articleCategory)
   }
 
