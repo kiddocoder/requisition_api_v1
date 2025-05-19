@@ -556,7 +556,7 @@ export default class RequisitionsController {
 
     const requisitions = await Requisition.query()
     .where('demendeur_id',params.id)
-    .where('status','draft')
+    .andWhere('status','draft')
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
