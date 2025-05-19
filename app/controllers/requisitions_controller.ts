@@ -247,6 +247,9 @@ export default class RequisitionsController {
       // Mise à jour de la priorité de la réquisition
       requisition.priority = priority;
       requisition.precured = true; 
+
+      requisition.status = 'precured';
+
       await requisition.useTransaction(trx).save();
   
       // 1. D'abord, supprimer les articles qui ne sont plus dans la liste
@@ -545,5 +548,5 @@ export default class RequisitionsController {
     return response.send(requisitions || [])
   }
 
-  
+
 }
