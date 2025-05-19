@@ -453,6 +453,7 @@ export default class RequisitionsController {
   async getRequisitionByDemandeur({response,params}:HttpContext){
     const requisitions = await Requisition.query()
     .where('demendeur_id',params.id)
+    .andWhere('status','pending')
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -467,6 +468,7 @@ export default class RequisitionsController {
   async getRequisitionByEnterprise({response,params}:HttpContext){
     const requisitions = await Requisition.query()
     .where('enterprise_id',params.id)
+    .andWhere('status','pending')
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -499,7 +501,7 @@ export default class RequisitionsController {
     const limit = request.input('limit') || 15
 
     const requisitions = await Requisition.query()
-    .whereIn('status',['approved','rejected','completed'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -518,7 +520,7 @@ export default class RequisitionsController {
 
     const requisitions = await Requisition.query()
     .where('demendeur_id',params.id)
-    .whereIn('status',['approved','rejected','completed','draft'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -537,7 +539,7 @@ export default class RequisitionsController {
 
     const requisitions = await Requisition.query()
     .where('enterprise_id',request.input('enterprise_id'))
-    .whereIn('status',['approved','rejected','completed'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
