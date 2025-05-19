@@ -22,6 +22,7 @@ export default class RequisitionsController {
   async index({response}: HttpContext) {
     const requisitions = await Requisition.query()
     .where('is_deleted', false)
+    .where('status', 'pending')
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -47,6 +48,7 @@ export default class RequisitionsController {
       const comment = request.input('comment');
       const date = DateTime.fromISO(request.input('date'));
       const items = request.input('items') || [];
+      const status = request.input('status') || 'pending';
   
       if (!items.length) {
         await trx.rollback();
@@ -57,7 +59,7 @@ export default class RequisitionsController {
       const requisition = await Requisition.create({ 
         ...data, 
         date,
-        status: 'pending'
+        status
       }, { client: trx });
 
       console.log(items)

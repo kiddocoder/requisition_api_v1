@@ -28,7 +28,7 @@ export default class Requisition extends BaseModel {
   declare priority: 'low' | 'normal' | 'high' 
 
   @column()
-  declare status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled' | 'returned'
+  declare status: 'draft' | 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled' | 'returned' |'precured'
 
   @column()
   declare demendeur_id: number 

@@ -64,6 +64,11 @@ router.post('/requisition/approve/direction/:requisition_id',RequisitionsControl
 router.get('/demandeur/requisitions/:id',RequisitionsController.prototype.getRequisitionByDemandeur)
 router.get('/enterprise/requisitions/:id',RequisitionsController.prototype.getRequisitionByEnterprise)
 router.delete('/requisitions/items/article/:requisition_id/:item_id',RequisitionsController.prototype.deleteRequisisitionArticle)
+router.get('/history/requisitions',RequisitionsController.prototype.getHistoryRequisitions)
+router.get('/user/history/requisitions/:id',RequisitionsController.prototype.getUserRequesitionHistory)
+router.get('/enterprise/history/requisitions/:id',RequisitionsController.prototype.getEnterpriseHistoryRequisitions)
+router.get('/user/history/requisition/:id',RequisitionsController.prototype.getUserRequisition)
+
 
 router.resource('/documents',DocumentController).apiOnly();
 router.resource('/equipment',EquipmentController).apiOnly();
