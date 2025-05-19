@@ -67,7 +67,7 @@ router.delete('/requisitions/items/article/:requisition_id/:item_id',Requisition
 router.get('/history/requisitions',RequisitionsController.prototype.getHistoryRequisitions)
 router.get('/user/history/requisitions/:id',RequisitionsController.prototype.getUserRequesitionHistory)
 router.get('/enterprise/history/requisitions/:id',RequisitionsController.prototype.getEnterpriseHistoryRequisitions)
-router.get('/user/history/requisition/:id',RequisitionsController.prototype.getUserRequisition)
+router.get('/user/history/requisition/:id',RequisitionsController.prototype.getUserRequesitionHistory)
 
 
 router.resource('/documents',DocumentController).apiOnly();
