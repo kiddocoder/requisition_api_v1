@@ -68,6 +68,7 @@ router.get('/history/requisitions',RequisitionsController.prototype.getHistoryRe
 router.get('/user/history/requisitions/:id',RequisitionsController.prototype.getUserRequesitionHistory)
 router.get('/enterprise/history/requisitions/:id',RequisitionsController.prototype.getEnterpriseHistoryRequisitions)
 router.get('/user/history/requisition/:id',RequisitionsController.prototype.getUserRequesitionHistory)
+router.get('/user/getUserDraftRequisitions/:id',RequisitionsController.prototype.getUserDraftRequisitions)
 
 
 router.resource('/documents',DocumentController).apiOnly();

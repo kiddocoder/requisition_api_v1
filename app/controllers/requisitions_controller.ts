@@ -550,5 +550,24 @@ export default class RequisitionsController {
     return response.send(requisitions || [])
   }
 
+  async getUserDraftRequisitions({response,params,request}:HttpContext){
+    const page = request.input('page') || 1
+    const limit = request.input('limit') || 15
+
+    const requisitions = await Requisition.query()
+    .where('demendeur_id',params.id)
+    .where('status','draft')
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    .paginate(page,limit)
+
+    return response.send(requisitions || [])
+  }
+
 
 }
