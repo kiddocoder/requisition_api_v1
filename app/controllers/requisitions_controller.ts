@@ -488,5 +488,62 @@ export default class RequisitionsController {
    await  item.delete();
     return response.ok(item)
   }
+
+  async getHistoryRequisitions({response,request}:HttpContext){
+    const page = request.input('page') || 1
+    const limit = request.input('limit') || 15
+
+    const requisitions = await Requisition.query()
+    .whereIn('status',['approved','rejected','completed'])
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    .paginate(page,limit)
+
+    return response.send(requisitions || [])
+  }
+  
+  async getUserRequesitionHistory({response,request,params}:HttpContext){
+    const page = request.input('page') || 1
+    const limit = request.input('limit') || 15
+
+    const requisitions = await Requisition.query()
+    .where('demendeur_id',params.id)
+    .whereIn('status',['approved','rejected','completed'])
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    .paginate(page,limit)
+
+    return response.send(requisitions || [])
+  }
+
+  async getEnterpriseHistoryRequisitions({response,request}:HttpContext){
+    const page = request.input('page') || 1
+    const limit = request.input('limit') || 15
+
+    const requisitions = await Requisition.query()
+    .where('enterprise_id',request.input('enterprise_id'))
+    .whereIn('status',['approved','rejected','completed'])
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    .paginate(page,limit)
+
+    return response.send(requisitions || [])
+  }
+
   
 }
