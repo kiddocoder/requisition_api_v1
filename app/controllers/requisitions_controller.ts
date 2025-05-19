@@ -43,7 +43,7 @@ export default class RequisitionsController {
   
     try {
       // 1. Récupération et validation des données
-      const data = request.only(['objet', 'titre', 'demendeur_id', 'enterprise_id']);
+      const data = request.only(['objet', 'titre','priority', 'demendeur_id', 'enterprise_id']);
       const comment = request.input('comment');
       const date = DateTime.fromISO(request.input('date'));
       const items = request.input('items') || [];
