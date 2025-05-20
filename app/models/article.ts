@@ -40,11 +40,14 @@ export default class Article extends BaseModel {
   @column()
   declare quantite: number
 
+   @column()
+  declare quantite_restante: number
+
   @column()
   declare status: string // en_stock, stock_faible, rupture_de_stock
 
   @column()
-  declare isDeleted: boolean
+  declare is_deleted: boolean
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

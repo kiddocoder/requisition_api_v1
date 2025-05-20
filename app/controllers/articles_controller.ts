@@ -10,8 +10,6 @@ export default class ArticlesController {
    */
   async index({response}: HttpContext) {
     const articles = await Article.query().where('is_deleted',false)
-    .preload('stocks')
-    .preload('stockMovements')
     .preload('category')
     .orderBy('created_at','desc').exec() || [];
     return response.send(articles)
@@ -25,9 +23,15 @@ export default class ArticlesController {
       'name',
       'description',
       'category_id',
-      'reference',
-      'unite_mesure'
+      'unite_mesure',
+      'reference'
     ]);
+
+    const generatedRef = String(data.name).slice(0,4).toUpperCase()+'-'+Math.floor(Math.random() * 10000);
+    if(!data.reference) {
+      data.reference = generatedRef;
+    }
+
     const article = await Article.updateOrCreate({name:data.name},data)
     return response.json(article)
   }
@@ -35,17 +39,57 @@ export default class ArticlesController {
   /**
    * Show individual record
    */
-  // async show({ params }: HttpContext) {}
+  async show({ params,response }: HttpContext) {
+    const article = await Article.find(params.id)
+    if(!article || article.is_deleted){
+      return response.notFound({message:"Article not found"})
+    }
+    article.load('category');
+
+    return response.json(article)
+  }
 
   /**
    * Handle form submission for the edit action
    */
-  // async update({ params, request }: HttpContext) {}
+  async update({ params,response,request }: HttpContext) {
+    const data = request.only([
+      'name',
+      'description',
+      'category_id',
+      'unite_mesure',
+      'reference'
+    ]);
+  
+    const article = await Article.find(params.id)
+    if(!article || article.is_deleted){
+      return response.notFound({message:"Article not found"})
+    }
+
+    const generatedRef = String(data.name).slice(0,4).toUpperCase()+'-'+Math.floor(Math.random() * 10000);
+    if(!data.reference) {
+      data.reference = generatedRef;
+    }
+    
+    article.merge(data)
+    await article.save()
+    return response.json(article)
+
+
+  }
 
   /**
    * Delete record
   */ 
-  //  async destroy({ params }: HttpContext) {}
+   async destroy({ params,response }: HttpContext) {
+    const article = await Article.find(params.id)
+    if(!article || article.is_deleted){
+      return {message:"Article not found"}
+    }
+    article.is_deleted = true;
+    await article.save()
+    return response.json({message:"Article deleted successfully"})
+   }
 
   
     async getCategoryArticles({ params, response }: HttpContext) {
