@@ -145,6 +145,7 @@ export default class RequisitionsController {
       const comment = request.input('comment');
       const date = DateTime.fromISO(request.input('date'));
       const items = request.input('items') || [];
+      const status = request.input('status') || 'pending';
   
       if (!items.length) {
         await trx.rollback();
@@ -157,7 +158,7 @@ export default class RequisitionsController {
         .update({
           ...data,
           date,
-          status: 'pending'
+          status
         });
   
       // 3. Traitement des articles

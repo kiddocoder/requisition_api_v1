@@ -64,40 +64,59 @@ export default class StocksController {
           avance_credit = 0 
         } = item
   
-        // Check if article exists in stock for this supplier
-        const existingStock = await Stock.query({ client: trx })
-          .where('article_id', article_id)
-          .where('supplier_id', supplier_id)
+        // Check if article exists in stock 
+        const existingArticle = await Article.query({ client: trx })
+          .where('id', article_id)
           .orderBy('created_at', 'desc')
           .first()
   
-        if (existingStock) {
+        if (existingArticle) {
           // Save old price to price history
           await PriceHistory.create(
             {
               article_id,
-              prix_unitaire: existingStock.prix_unitaire,
-              quantite: existingStock.quantite,
+              prix_unitaire: existingArticle.prix_unitaire,
+              quantite: existingArticle.quantite,
               date: DateTime.now(),
-              description: `Prix avant mise à jour (${existingStock.prix_unitaire} BIF)`,
+              description: `Prix avant mise à jour (${existingArticle.prix_unitaire} BIF)`,
             },
             { client: trx }
           )
   
-          // Update existing stock
-          const newQuantity = existingStock.quantite + quantite
-          await existingStock
+          // Update existing article
+          const newQuantity = existingArticle.quantite + quantite
+          await existingArticle
             .merge({
               quantite: newQuantity,
               prix_unitaire,
-              prix_total: prix_unitaire * newQuantity,
               status: this.getStockStatus(newQuantity),
-              transaction_type,
-              avance_credit,
             })
             .useTransaction(trx)
             .save()
+
+          // existing stock for this supplier
+            const existingStock = await Stock.query({ client: trx })
+            .where('article_id', article_id)
+            .where('supplier_id', supplier_id)
+            .first()
   
+          if (existingStock) {
+            // Create new stock entry
+            await Stock.create(
+              {
+                supplier_id,
+                article_id,
+                user_id,
+                quantite,
+                prix_unitaire,
+                prix_total,
+                avance_credit,
+                transaction_type,
+                status: this.getStockStatus(quantite),
+              },
+              { client: trx }
+            )
+          
           // Create stock movement
           await StockMovement.create(
             {
@@ -113,6 +132,8 @@ export default class StocksController {
             },
             { client: trx }
           )
+        }
+
         } else {
           // Create new stock entry
           const stock = await Stock.create(
