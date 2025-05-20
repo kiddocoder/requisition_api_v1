@@ -32,7 +32,9 @@ export default class SuppliersController {
    */
   public async update({ params, request, response }: HttpContext) {
     const supplier = await Supplier.findOrFail(params.id)
-    await supplier.merge(request.all()).save()
+    const data = request.only(['name', 'address', 'phone'])
+
+    await supplier.merge(data).save()
     return response.json(supplier)
   }
 
