@@ -502,7 +502,7 @@ export default class RequisitionsController {
     const limit = request.input('limit') || 15
 
     const requisitions = await Requisition.query()
-    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected','precured'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -521,7 +521,7 @@ export default class RequisitionsController {
 
     const requisitions = await Requisition.query()
     .where('demendeur_id',params.id)
-    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected','precured'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -540,7 +540,7 @@ export default class RequisitionsController {
 
     const requisitions = await Requisition.query()
     .where('enterprise_id',request.input('enterprise_id'))
-    .whereIn('status',['approved','rejected','completed','cancelled','rejected'])
+    .whereIn('status',['approved','rejected','completed','cancelled','rejected','precured'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
