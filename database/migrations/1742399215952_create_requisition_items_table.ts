@@ -21,9 +21,11 @@ export default class extends BaseSchema {
       .onUpdate('CASCADE')       
 
       table.bigInteger('quantite_demande').defaultTo(0)
+       table.bigInteger('quantite_recue').defaultTo(0)
       table.bigInteger('prix_unitaire').defaultTo(0)
       table.bigInteger('prix_total').defaultTo(0)
       table.string('transaction_type').nullable().defaultTo("cash")
+       table.string('status').nullable().defaultTo("en_stock")
       table.bigInteger("avance_credit").defaultTo(0)
 
       table.bigInteger('supplier_id')

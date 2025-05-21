@@ -19,6 +19,12 @@ export default class RequisitionItem extends BaseModel {
   declare quantite_demande: number
 
   @column()
+  declare status: string
+
+  @column()
+  declare quantite_recue: number
+
+  @column()
   declare prix_unitaire: number 
 
   @column()

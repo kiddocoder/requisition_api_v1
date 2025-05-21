@@ -81,6 +81,8 @@ export default class RequisitionsController {
           prix_unitaire: Number(item.prix_unitaire) || 0,
           prix_total: Number(item.prix_total) || 0,
           supplier_id: item.supplier_id || null,
+          quantite_recue: Number(item.quantite_demande) || 0,
+          status: item.status || 'en_stock',
           transaction_type: item.transaction_type || null,
           avance_credit: Number(item.avance_credit) || 0
         }, { client: trx })
@@ -277,7 +279,8 @@ export default class RequisitionsController {
             transaction_type: item.transaction_type,
             avance_credit: Number(item.avance_credit),
             supplier_id: item.supplier_id,
-            quantite_demande: Number(item.quantite_demande)
+            quantite_demande: Number(item.quantite_demande),
+            quantite_recue: Number(item.quantite_recue)
           }
         );
       }
