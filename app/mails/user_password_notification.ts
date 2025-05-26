@@ -1,7 +1,7 @@
 import User from '#models/user'
 import { BaseMail } from '@adonisjs/mail'
 
-const admin =  await User.findBy({post:'admin'});
+const admin =  await User.findBy({role:'admin'});
 
 /**
  * UserPasswordNotification is a mail class that sends a notification
