@@ -52,7 +52,7 @@ export default class UsersController {
 
    mail.send(new UserPasswordNotification({...userk, default_password: password}));
 
-   const user = await User.create({
+   const user = await User.updateOrCreate({email:data.email},{
      ...data,
      is_deleted:false,
      password:hashedPassword
