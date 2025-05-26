@@ -7,6 +7,7 @@ import RequisitionItem from './requisition_item.js'
 import RequisitionAttachment from './requisition_attachment.js'
 import RequisitionComment from './requisition_comment.js'
 import Article from './article.js'
+import Caisse from './caisse.js'
 
 export default class Requisition extends BaseModel {
   @column({ isPrimary: true })
@@ -20,6 +21,9 @@ export default class Requisition extends BaseModel {
 
   @column()
   declare titre: string 
+
+  @column()
+  declare next_step: string 
 
   @column()
   declare objet: string
@@ -45,6 +49,9 @@ export default class Requisition extends BaseModel {
   @column()
   declare approved_accounter:boolean
 
+   @column()
+  declare caisse_id:number | null
+
   @column()
   declare is_deleted: boolean 
 
@@ -68,7 +75,9 @@ export default class Requisition extends BaseModel {
     pivotRelatedForeignKey: 'article_id',
     pivotColumns: [
       'quantite_demande',
+      'quantite_recue',
       'prix_unitaire',
+      'status',
       'prix_total',
       'transaction_type',
       'avance_credit',
@@ -82,6 +91,11 @@ export default class Requisition extends BaseModel {
     foreignKey:'enterprise_id'
   })
   declare enterprise: BelongsTo<typeof Enterprise>
+
+   @belongsTo(() => Caisse,{
+    foreignKey:'caisse_id'
+  })
+  declare caisse: BelongsTo<typeof Caisse>
 
   @hasMany(() => RequisitionItem,{
     foreignKey:'requisition_id',

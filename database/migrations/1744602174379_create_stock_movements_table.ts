@@ -38,9 +38,18 @@ export default class extends BaseSchema {
       
 
       table.string('type').defaultTo("entree") // entree ou sortie
+
       table.bigInteger('quantite').defaultTo(0)
 
+      table.bigInteger('unit_price').defaultTo(0)
+
+      table.bigInteger('ancien_prix').defaultTo(0)
+
+      table.bigInteger('nouveau_prix').defaultTo(0)
+
       table.string('description').nullable()
+
+       table.boolean('is_deleted').defaultTo(false)
 
       table.timestamps()
     })

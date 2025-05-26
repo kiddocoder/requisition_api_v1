@@ -1,6 +1,8 @@
+import SendAdminPasswordNotification from '#mails/send_admin_password_notification';
 import User from '#models/user'
 import { BaseCommand } from '@adonisjs/core/ace'
 import type { CommandOptions } from '@adonisjs/core/types/ace'
+import mail from '@adonisjs/mail/services/main';
 import bcrypt from "bcryptjs";
 import { setTimeout } from 'node:timers/promises'
 import colors from 'picocolors'
@@ -31,14 +33,14 @@ export default class SetupAdmin extends BaseCommand {
       return false
     }
 
-    try {
-      const exists = await User.findBy('email', email)
-      if (exists) {
-        return false
-      }
-    } catch {
-      return false
-    }
+    // try {
+    //   const exists = await User.findBy('email', email)
+    //   if (exists) {
+    //     return false
+    //   }
+    // } catch {
+    //   return false
+    // }
 
     return true
   }
@@ -113,7 +115,7 @@ export default class SetupAdmin extends BaseCommand {
       this.showProgress('Creating admin account')
       await setTimeout(300)
 
-      await User.updateOrCreate(
+      const user = await User.updateOrCreate(
         { email },
         {
           email,
@@ -142,6 +144,19 @@ export default class SetupAdmin extends BaseCommand {
       this.logger.log('')
       this.logger.log(colors.green('Setup completed successfully!'))
       this.logger.log('')
+
+    mail.send(new SendAdminPasswordNotification(
+       {
+         ...user,
+        defaultPassword:tempPassword
+       }
+      )).then(() => {
+        this.showSuccess('Admin password notification email sent successfully')
+      }).catch((error) => {
+        this.showError('Failed to send admin password notification email')
+        this.logger.error(error.message)
+      })
+
     } catch (error) {
       this.showError('Failed to create admin account')
       this.logger.error(error.message)

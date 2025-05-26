@@ -37,6 +37,8 @@ export default class extends BaseSchema {
       .onUpdate('CASCADE')
 
       table.boolean('is_deleted').defaultTo(false)
+      table.boolean('accepted').defaultTo(true)
+      
       table.timestamps()
       table.index(["requisition_id","supplier_id"])
     })

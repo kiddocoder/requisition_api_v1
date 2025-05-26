@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit",
-    "randura": "node ace db:truncate && node ace db:seed " 
+    "randura": "node ace db:truncate && node ace db:seed "
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -56,9 +56,11 @@
     "@adonisjs/core": "^6.17.2",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.0",
+    "@adonisjs/mail": "^9.2.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@vinejs/vine": "^3.0.0",
     "bcryptjs": "^3.0.2",
+    "edge.js": "^6.2.1",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.5.0",
     "pg": "^8.14.0",

@@ -14,15 +14,37 @@ import Operation from '#models/operation';
 import OperationType from '#models/operation_type';
 import db from '@adonisjs/lucid/services/db';
 import logger from '@adonisjs/core/services/logger';
+import User from '#models/user';
 
 export default class RequisitionsController {
   /**
    * Display a list of resource
    */
-  async index({response}: HttpContext) {
+  async index({response,request}: HttpContext) {
+
+    const userPost = request.input('post');
+
+    let status = 'pending';
+    let next_step = 'approvisionnement';
+
+    if(userPost === 'demandeur'){
+      status = 'pending'
+      next_step = 'approvisionnement'
+    }else if(userPost === 'approvisionnement'){
+      status = 'pending'
+      next_step = 'approvisionnement'
+    }else if(userPost === 'direction'){
+      status = 'approved'
+      next_step = 'direction'
+    }else if(userPost === 'comptabilite'){
+      status = 'precured'
+      next_step = 'comptabilite'
+    }
+
     const requisitions = await Requisition.query()
     .where('is_deleted', false)
-    .where('status', 'pending')
+    .andWhere('status', status)
+    .andWhere('next_step', next_step)
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -44,16 +66,43 @@ export default class RequisitionsController {
   
     try {
       // 1. Récupération et validation des données
-      const data = request.only(['objet', 'titre','priority', 'demendeur_id', 'enterprise_id']);
+      const data = request.only(['objet', 'titre','priority','next_step', 'demendeur_id', 'enterprise_id']);
       const comment = request.input('comment');
       const date = DateTime.fromISO(request.input('date'));
       const items = request.input('items') || [];
-      const status = request.input('status') || 'pending';
-  
+      let status = request.input('status') || 'pending';
+    
       if (!items.length) {
         await trx.rollback();
         return response.badRequest({ message: 'Au moins un article est requis' });
       }
+
+      // chek the user 
+
+      const user  = await User.find(data.demendeur_id);
+      if(!user){
+        await trx.rollback();
+        return response.notFound({message:"User not found"})
+      }
+      
+      // give next step of the requisition. 
+      const userPost = user.post;
+
+     
+    
+    if(userPost === 'demandeur'){
+      status = 'pending'
+      data.next_step = 'approvisionnement'
+    }else if(userPost === 'approvisionnement'){
+      status = 'pending'
+      data.next_step = 'approvisionnement'
+    }else if(userPost === 'direction'){
+      status = 'approved'
+      data.next_step = 'direction'
+    }else if(userPost === 'comptabilite'){
+      status = 'precured'
+      data.next_step = 'comptabilite'
+    }
   
       // 2. Création de la requête principale
       const requisition = await Requisition.create({ 
@@ -78,10 +127,10 @@ export default class RequisitionsController {
           requisition_id: requisition.id,
           article_id: item.article_id,
           quantite_demande: Number(item.quantiteDemande) || 0,
+          quantite_recue: Number(item.quantiteDemande) || 0,
           prix_unitaire: Number(item.prix_unitaire) || 0,
           prix_total: Number(item.prix_total) || 0,
           supplier_id: item.supplier_id || null,
-          quantite_recue: Number(item.quantite_demande) || 0,
           status: item.status || 'en_stock',
           transaction_type: item.transaction_type || null,
           avance_credit: Number(item.avance_credit) || 0
@@ -128,7 +177,9 @@ export default class RequisitionsController {
     .preload('attachments')
     .preload('demendeur')
     .orderBy('created_at', 'desc')
-    .preload('comments')
+    .preload('comments',(query)=>{
+      query.preload('user')
+    })
     .first();
 
     if(!requisition){
@@ -227,110 +278,176 @@ export default class RequisitionsController {
     return response.ok(requisition)
   }
 
-  async approvisionnement({ response, request }: HttpContext) {
-    const trx = await db.transaction();
-  
-    try {
-      const requisition_id = Number(request.input('requisition_id'));
-      const priority = request.input('priority') || 'normal';
-      const comment = request.input('comment') || null;
-      const user_id = request.input('user_id') || null;
-      const items = request.input('items') || [];
-      const author = request.input('author') || 'utilisateur'
-      const pieceFiles = request.files('attachments', {
-        size: '10mb',
-        extnames: ['jpg', 'png', 'pdf', 'docx', 'xlsx'],
-      });
-  
-      // Vérifier si la réquisition existe et n'est pas supprimée
-      const requisition = await Requisition.query({ client: trx }).where('id', requisition_id).where('is_deleted', false).first();
-      if (!requisition) {
-        await trx.rollback();
-        return response.notFound({ message: 'Requisition not found or deleted!' });
+async approvisionnement({ response, request }: HttpContext) {
+  const trx = await db.transaction();
+
+  try {
+    const requisition_id = Number(request.input('requisition_id'));
+    const priority = request.input('priority') || 'normal';
+    const comment = request.input('comment') || null;
+    const user_id = request.input('user_id') || null;
+    const items = request.input('items') || [];
+    console.log("items : ", items);
+    const author = request.input('author') || 'utilisateur';
+    const pieceFiles = request.files('attachments', {
+      size: '10mb',
+      extnames: ['jpg', 'png', 'pdf', 'docx', 'xlsx', 'webp', 'jpeg'],
+    });
+
+    // Vérifier si la réquisition existe et n'est pas supprimée
+    const requisition = await Requisition.query({ client: trx })
+      .where('id', requisition_id)
+      .where('is_deleted', false)
+      .first();
+    
+    if (!requisition) {
+      await trx.rollback();
+      return response.notFound({ message: 'Requisition not found or deleted!' });
+    }
+
+    // Mise à jour de la priorité de la réquisition
+    requisition.priority = priority;
+    requisition.precured = true;
+    requisition.status = 'precured';
+    await requisition.useTransaction(trx).save();
+
+    // 1. Valider que tous les articles existent avant de commencer
+    const validArticleIds = [];
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      const articleExists = await Article.query({ client: trx })
+        .where('id', article_id)
+        .where('is_deleted', false)
+        .first();
+      
+      if (articleExists) {
+        validArticleIds.push(article_id);
+      } else {
+        console.warn(`Article with id ${article_id} not found or deleted, will be skipped`);
       }
-  
-      // Mise à jour de la priorité de la réquisition
-      requisition.priority = priority;
-      requisition.precured = true; 
+    }
 
-      requisition.status = 'precured';
-
-      await requisition.useTransaction(trx).save();
-  
-      // 1. D'abord, supprimer les articles qui ne sont plus dans la liste
-      const currentArticleIds = items.map((item: any) => Number(item.article_id));
+    // Marquer comme non acceptés les articles qui ne sont plus dans la liste des articles valides
+    if (validArticleIds.length > 0) {
       await RequisitionItem.query({ client: trx })
         .where('requisition_id', requisition.id)
-        .whereNotIn('article_id', currentArticleIds)
-        .delete();
-  
-      // 2. Ensuite, mettre à jour ou créer les articles
-      for (const item of items) {
-        await RequisitionItem.
-        query({ client: trx })
+        .whereNotIn('article_id', validArticleIds)
+        .update({ accepted: false });
+    } else {
+      // Si aucun article valide n'est fourni, marquer tous comme non acceptés
+      await RequisitionItem.query({ client: trx })
         .where('requisition_id', requisition.id)
-        .andWhere('article_id', item.article_id)
-        .update(
-          {
-            requisition_id: requisition.id,
-            article_id: item.article_id,
-            prix_unitaire: Number(item.prix_unitaire),
-            prix_total: Number(item.prix_total),
-            transaction_type: item.transaction_type,
-            avance_credit: Number(item.avance_credit),
-            supplier_id: item.supplier_id,
-            quantite_demande: Number(item.quantite_demande),
-            quantite_recue: Number(item.quantite_recue)
-          }
-        );
+        .update({ accepted: false });
+    }
+
+    // 2. Traiter uniquement les articles valides
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      
+      // Vérifier si cet article est dans la liste des articles valides
+      if (!validArticleIds.includes(article_id)) {
+        continue; // Ignorer cet article
       }
-  
-      // Ajouter un commentaire si fourni
-      if (comment) {
-        await RequisitionComment.create({
+      
+      // Validation des données numériques
+      const prix_unitaire = Number(item.prix_unitaire) || 0;
+      const prix_total = Number(item.prix_total) || 0;
+      const avance_credit = Number(item.avance_credit) || 0;
+      const quantite_demande = Number(item.quantite_demande) || 0;
+      const quantite_recue = Number(item.quantite_recue) || 0;
+
+      console.log(`Processing article_id: ${article_id}, prix_unitaire: ${prix_unitaire}, prix_total: ${prix_total}`);
+
+      // Chercher l'article spécifique pour cette réquisition
+      const existingItem = await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .where('article_id', article_id)
+        .first();
+
+      if (existingItem) {
+        // Mettre à jour l'article existant
+        await RequisitionItem.query({ client: trx })
+          .where('id', existingItem.id)
+          .update({
+            prix_unitaire: prix_unitaire,
+            prix_total: prix_total,
+            transaction_type: item.transaction_type,
+            avance_credit: avance_credit,
+            supplier_id: item.supplier_id || null,
+            quantite_demande: quantite_demande,
+            quantite_recue: quantite_recue,
+            accepted: true // Marquer comme accepté puisqu'il est dans la liste
+          });
+        
+        console.log(`Updated existing item for article_id: ${article_id}`);
+      } else {
+        // Créer un nouvel article
+        await RequisitionItem.create({
+          requisition_id: requisition.id,
+          article_id: article_id,
+          prix_unitaire: prix_unitaire,
+          prix_total: prix_total,
+          transaction_type: item.transaction_type,
+          avance_credit: avance_credit,
+          supplier_id: item.supplier_id || null,
+          quantite_demande: quantite_demande,
+          quantite_recue: quantite_recue,
+          accepted: true,
+          is_deleted: false
+        }, { client: trx });
+        
+        console.log(`Created new item for article_id: ${article_id}`);
+      }
+    }
+
+    // Ajouter un commentaire si fourni
+    if (comment) {
+      await RequisitionComment.create({
+        requisition_id,
+        comment,
+        author,
+        user_id
+      }, { client: trx });
+    }
+
+    // Traitement des pièces jointes
+    if (pieceFiles && pieceFiles.length > 0) {
+      for (const file of pieceFiles) {
+        const fileName = `${new Date().getTime()}_${file.clientName}`;
+        
+        await file.move(app.tmpPath('requisition_attachments'), {
+          name: fileName,
+          overwrite: true
+        });
+
+        if (!file.markAsMoved) {
+          throw new Error(`Failed to move file: ${file.errors?.[0]?.message || 'Unknown error'}`);
+        }
+
+        await RequisitionAttachment.create({
           requisition_id,
-          comment,
-          author,
-          user_id
+          file_name: fileName,
+          file_type: file.type,
+          url: `${env.get('API_URL')}attachments/${fileName}`
         }, { client: trx });
       }
-  
-      // Traitement des pièces jointes
-      if (pieceFiles && pieceFiles.length > 0) {
-        for (const file of pieceFiles) {
-          await file.move(app.tmpPath('requisition_attachments'), {
-            name: `${new Date().getTime()}`,
-            overwrite: true
-          });
-  
-          if (!file.markAsMoved) {
-            throw new Error(`Failed to move file: ${file.errors[0].message}`);
-          }
-  
-          await RequisitionAttachment.create({
-            requisition_id,
-            file_name: file.fileName,
-            file_type: file.type,
-            url: `${env.get('API_URL')}attachments/${file.fileName}`
-          }, { client: trx });
-        }
-      }
-  
-      await trx.commit();
-      return response.ok({ 
-        message: 'Requisition updated successfully!',
-        requisition_id: requisition.id
-      });
-    } catch (error) {
-      await trx.rollback();
-      console.error('Approvisionnement error:', error);
-      return response.badRequest({ 
-        message: 'Failed to update requisition',
-        error: process.env.NODE_ENV === 'development' ? error.message : null
-      });
     }
-  }
 
+    await trx.commit();
+    return response.ok({ 
+      message: 'Requisition updated successfully!',
+      requisition_id: requisition.id
+    });
+    
+  } catch (error) {
+    await trx.rollback();
+    console.error('Approvisionnement error:', error);
+    return response.badRequest({ 
+      message: 'Failed to update requisition',
+      error: process.env.NODE_ENV === 'development' ? error.message : null
+    });
+  }
+}
   async serveAttachment({ params, response }: HttpContext) {
     try {
       const { filename } = params;
@@ -401,22 +518,20 @@ export default class RequisitionsController {
     requisition.approved_accounter = true;
     requisition.save();
 
-    const  caisse = await Caisse.find(data.caisse_id)
-    if(!caisse || caisse.is_deleted ){
-      return response.notFound({ message: 'Caisse not found or deleted!' });
-    }
-    caisse.merge(
+    const  caisse = await Caisse.find(data.caisse_id) || null;
+ 
+    caisse?.merge(
       {
         solde_actuel:caisse.budget - total
       }
     )
-    caisse.save();
+    caisse?.save();
 
     const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
     
     await Operation.create({
       operation_type_id:SaveOper.id,
-      caisse_id:caisse.id,
+      caisse_id:caisse?.id || null,
       amount:total,
       user_id:user_id,
       description:data?.description || null
@@ -443,15 +558,58 @@ export default class RequisitionsController {
   }
 
   async approvDirection({response,params,request}:HttpContext){
+     const data = request.only([
+      'requisition_id',
+      'caisse_id',
+      'voiture_id',
+      'description',
+      'status'
+    ]) 
+
+    const getcomment = request.input('comment');
+    const {comment,author,user_id} = getcomment;
+    const total = Number(request.input('total'));
+
     const requisition = await Requisition.find(params.requisition_id);
-    const status = request.input('status') || 'pending'
-    if(!requisition){
-      return response.notFound({message:"Requisition not found!"})
+    if (!requisition || requisition.is_deleted) {
+      return response.notFound({ message: 'Requisition not found or deleted!' });
     }
-    requisition.approved_direction = status === 'approved';
+    
+    requisition.approved_direction = data.status === 'approved';
     requisition.status = 'completed';
-    requisition.save()
-    return response.ok({message:"Requisition approuv directio"})
+    requisition.save();
+
+    const  caisse = await Caisse.find(data.caisse_id) || null;
+ 
+    caisse?.merge(
+      {
+        solde_actuel:caisse.budget - total
+      }
+    )
+    caisse?.save();
+
+    const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
+    
+    await Operation.create({
+      operation_type_id:SaveOper.id,
+      caisse_id:caisse?.id || null,
+      amount:total,
+      user_id:user_id,
+      description:data?.description || null
+    })
+
+      // Ajouter un commentaire si fourni
+      if (comment) {
+        await RequisitionComment.create({
+          requisition_id:data.requisition_id,
+          comment,
+          user_id,
+          author
+        });
+      }
+
+      response.ok({message:"Approved par compatabit"})
+  
   }
 
   async getRequisitionByDemandeur({response,params}:HttpContext){
@@ -571,6 +729,24 @@ export default class RequisitionsController {
     .preload('demendeur')
     .orderBy('created_at', 'desc')
     .paginate(page,limit)
+
+    return response.send(requisitions || [])
+  }
+
+  async getPrecuredRequisition ({response}:HttpContext){
+    // const page = request.input('page') || 1
+    // const limit = request.input('limit') || 15
+
+    const requisitions = await Requisition.query()
+    .andWhereIn('status',['precured','pending'])
+    .preload('enterprise')
+    .preload('items', (query) => {
+      query.preload('article')
+    })
+    .preload('attachments')
+    .preload('demendeur')
+    .orderBy('created_at', 'desc')
+    // .paginate(page,limit)
 
     return response.send(requisitions || [])
   }

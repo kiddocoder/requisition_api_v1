@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import Requisition from './requisition.js'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import User from './user.js'
 
 export default class RequisitionComment extends BaseModel {
   @column({ isPrimary: true })
@@ -35,4 +36,9 @@ export default class RequisitionComment extends BaseModel {
     foreignKey:"requisition_id"
   })
   declare requisition:BelongsTo<typeof Requisition>
+
+   @belongsTo(()=>User,{
+    foreignKey:"user_id"
+  })
+  declare user:BelongsTo<typeof User>
 }

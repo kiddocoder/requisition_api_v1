@@ -5,8 +5,12 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.alterTable(this.tableName, (table) => {
-      table.bigInteger('quantite_recue').defaultTo(0)
-      table.string('status').nullable().defaultTo("en_stock")
+    //   //  table.bigInteger('unit_price').defaultTo(0)
+
+      table.boolean('accepted').defaultTo(true)  /* 'direction'*/
+
+    //   // table.bigInteger('nouveau_prix').defaultTo(0)
+
     })
   }
 

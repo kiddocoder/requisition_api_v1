@@ -42,6 +42,9 @@ export default class RequisitionItem extends BaseModel {
   @column()
   declare is_deleted: boolean
 
+  @column()
+  declare accepted: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 

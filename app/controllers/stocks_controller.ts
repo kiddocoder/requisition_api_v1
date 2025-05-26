@@ -84,15 +84,20 @@ export default class StocksController {
           )
   
           // Update existing article
-          const newQuantity = existingArticle.quantite + quantite
+          const newQuantity = Number(existingArticle.quantite) + Number(quantite)
+          const remainingQuantity = Number(newQuantity) - Number(existingArticle.quantite_restante);
+
           await existingArticle
             .merge({
               quantite: newQuantity,
               prix_unitaire,
+              quantite_restante:remainingQuantity,
               status: this.getStockStatus(newQuantity),
             })
             .useTransaction(trx)
             .save()
+
+          await existingArticle.useTransaction(trx).save()
 
           // existing stock for this supplier
             const existingStock = await Stock.query({ client: trx })
@@ -124,8 +129,11 @@ export default class StocksController {
               article_id,
               stock_id: existingStock.id,
               supplier_id,
+              unit_price:prix_unitaire,
+              ancien_prix:existingArticle?.prix_unitaire || prix_unitaire,
+              nouveau_prix:prix_unitaire,
               quantite: quantite,
-              type: quantite > 0 ? 'in' : 'out',
+              type: quantite > 0 ? 'entree' : (existingArticle ? 'modification': 'sortie'),
               description: `${quantite > 0 ? '+' : ''}${quantite} ${
                 quantite > 0 ? 'entrée' : 'sortie'
               } sur ${existingStock.quantite} (quantité existante)`,
@@ -159,7 +167,7 @@ export default class StocksController {
               stock_id: stock.id,
               supplier_id,
               quantite,
-              type: 'in',
+              type: 'entree',
               description: `+${quantite} entrée (nouvel article)`,
             },
             { client: trx }
@@ -178,27 +186,6 @@ export default class StocksController {
           )
         }
   
-                // Update article current price and total quantity across all suppliers
-        const article = await Article.findOrFail(article_id, { client: trx })
-
-        // Calculate new total quantity by summing all stock entries for this article
-        const stocks = await Stock.query({ client: trx })
-          .where('article_id', article_id)
-          .orderBy('created_at', 'desc')
-          .exec()
-
-        const totalQuantityResults = stocks.map(stock => stock.quantite)
-        const totalQuantity = totalQuantityResults.reduce((acc, k) => acc + k, 0)
-
-        const newTotalQuantity = totalQuantity || 0
-
-        article.merge({
-          prix_unitaire: prix_unitaire, // Update to latest price
-          quantite: newTotalQuantity,   // Update to sum of all stock quantities
-          status: this.getStockStatus(newTotalQuantity) // Update status based on total
-        })
-
-        await article.useTransaction(trx).save()
 
         // Track payment if transaction is cash or credit 
         if (transaction_type === 'cash') {
@@ -212,6 +199,7 @@ export default class StocksController {
       }
   
       // Create payment histories for cash transactions
+      console.log(user_id)
       for (const [supplierId, amount] of Object.entries(supplierPayments)) {
         await PaymentHistory.create(
           {
@@ -219,7 +207,6 @@ export default class StocksController {
             amount,
             payment_date: DateTime.now(),
             payment_method: 'cash',
-            user_id,
             description: `Paiement pour approvisionnement de stock`,
           },
           { client: trx }

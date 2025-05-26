@@ -19,10 +19,12 @@ import EquipmentController from '#controllers/equipment_controller'
 import NotificationsController from '#controllers/notifications_controller'
 import OperationsController from '#controllers/operations_controller'
 import RequisitionsController from '#controllers/requisitions_controller'
+import StockMouvementsController from '#controllers/stock_mouvements_controller'
 import StocksController from '#controllers/stocks_controller'
 import SuppliersController from '#controllers/suppliers_controller'
 import UserAuthController from '#controllers/user_auth_controller'
 import UsersController from '#controllers/users_controller'
+// import AuthMiddleware from '#middleware/auth_middleware'
 import router from '@adonisjs/core/services/router'
 
 router.get('/', async () => {
@@ -42,6 +44,7 @@ router.delete("/user/definitly/:id",UsersController.prototype.deleteDefinitlyUse
 router.resource('enterprises', EnterprisesController).apiOnly();
 router.resource('requisitions',RequisitionsController).apiOnly();
 router.get('/enterprise/users/:enterprise_id',UsersController.prototype.getEntepriseUsers)
+router.get('/precured/requisitions',RequisitionsController.prototype.getPrecuredRequisition)
 
 router.resource('articles',ArticlesController).apiOnly();
 router.get('/category/articles/:id',ArticlesController.prototype.getCategoryArticles);
@@ -85,6 +88,9 @@ router.resource('stocks',StocksController).apiOnly();
 router.resource('notifications',NotificationsController).apiOnly();
 router.resource('operations',OperationsController).apiOnly();
 router.resource('departments',DepartmentsController).apiOnly();
+
+router.resource('stock_mouvement',StockMouvementsController).apiOnly();
+router.get('/article/stock/mouvement/:id',StockMouvementsController.prototype.getArticleStockMovment);
 
 router.resource('budgets',BudgetsController).apiOnly();
 

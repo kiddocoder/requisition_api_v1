@@ -25,8 +25,20 @@ export default class StockMovement extends BaseModel {
   @column()
   declare quantite: number
 
+ @column()
+  declare unit_price: number
+
   @column()
-  declare type: string
+  declare ancien_prix: number
+
+  @column()
+  declare nouveau_prix: number
+
+  @column()
+  declare type: string /* entree,sortie,modification */
+
+  @column()
+  declare is_deleted:boolean
 
   @column()
   declare description: string

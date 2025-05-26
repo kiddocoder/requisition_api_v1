@@ -27,6 +27,8 @@ export default class extends BaseSchema {
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
 
+      table.string('next_step').defaultTo('approvisionnement') 
+
       table.bigInteger('caisse_id')
       .unsigned()
       .nullable()
@@ -50,6 +52,7 @@ export default class extends BaseSchema {
       .inTable('users')
       .onDelete('CASCADE')
       .onUpdate('CASCADE')
+      
       table.string('priority').nullable()
       table.boolean('approved_accounter').defaultTo(false)
       table.boolean('precured').defaultTo(false) // approvisionne
