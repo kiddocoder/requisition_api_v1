@@ -3,10 +3,6 @@ import { BaseMail } from '@adonisjs/mail'
 
 const admin =  await User.findBy({post:'admin'});
 
-if(!admin){
-  throw new Error('Admin user not found');
-}
-
 /**
  * UserPasswordNotification is a mail class that sends a notification
  * to the user about their password.
