@@ -1,15 +1,17 @@
 import User from '#models/user'
 import { BaseMail } from '@adonisjs/mail'
 
-const admin =  await User.findBy({role:'admin'});
-
 /**
  * UserPasswordNotification is a mail class that sends a notification
  * to the user about their password.
  */
 
 export default class UserPasswordNotification extends BaseMail {
-  from = admin?.email;
+  
+  private admin = async () => await User.findBy({ role: 'admin' });
+
+  from = undefined;
+
   subject = 'Default Password for Requisition';
 
   constructor(private user: any) {
@@ -27,7 +29,11 @@ export default class UserPasswordNotification extends BaseMail {
    * The "prepare" method is called automatically when
    * the email is sent or queued.
    */
-  prepare() {
+  async prepare() {
+    const adminUser = await this.admin();
+    if (adminUser?.email) {
+      this.message.from(adminUser.email);
+    }
     this.message.to(this.user.email)
       .htmlView('emails/user_password', {
         user: this.user,
