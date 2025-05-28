@@ -50,7 +50,7 @@ export default class SetupAdmin extends BaseCommand {
       uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
       lowercase: 'abcdefghijklmnopqrstuvwxyz',
       numbers: '0123456789',
-      symbols: '!@#$%^&*()_+-=[]{};:,.<>/?`~'
+      symbols: '!@#$&;?'
     }
 
     let password = ''

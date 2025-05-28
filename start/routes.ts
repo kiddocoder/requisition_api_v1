@@ -35,7 +35,8 @@ router.get('/', async () => {
 
 router.group(() => {
 
-router.resource('users', UsersController).apiOnly()
+router.resource('users', UsersController).apiOnly();
+
 router.post('/users/login',UserAuthController.prototype.login);
 router.post('/super-admin/reset-password',UserAuthController.prototype.resetPassword);
 router.get('/user/require-reset/:id',UserAuthController.prototype.requireReset);
@@ -94,6 +95,6 @@ router.get('/article/stock/mouvement/:id',StockMouvementsController.prototype.ge
 
 router.resource('budgets',BudgetsController).apiOnly();
 
-}).prefix('/api');
+}).prefix('/api')
 
 router.get('/attachments/:filename', RequisitionsController.prototype.serveAttachment);

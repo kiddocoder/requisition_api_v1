@@ -6,9 +6,8 @@ export default class AuthMiddleware {
     /**
      * Middleware logic goes here (before the next call)
      */
-    const header = ctx.request.headers().authorization;
-    const token = header?.split(' , ')[1];
-console.log(token)
+    console.log(ctx)
+
     /**
      * Call next method in the pipeline and return its output
      */
