@@ -36,8 +36,7 @@ export default class UserPasswordNotification extends BaseMail {
     }
     this.message.to(this.user.email)
       .htmlView('emails/user_password', {
-        user: this.user,
-        default_password: this.user.default_password,
+        user: this.user
       });
   }
 }
