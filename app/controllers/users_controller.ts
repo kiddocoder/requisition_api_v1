@@ -1,10 +1,10 @@
-import UserPasswordNotification from '#mails/user_password_notification';
+// import UserPasswordNotification from '#mails/user_password_notification';
 import AssignUser from '#models/assign_user';
 import Enterprise from '#models/enterprise';
 import User from '#models/user'
 import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db';
-import mail from '@adonisjs/mail/services/main';
+// import mail from '@adonisjs/mail/services/main';
 import bcrypt from "bcryptjs";
 
 
@@ -50,7 +50,7 @@ export default class UsersController {
    // Hash password
    const hashedPassword = await bcrypt.hash(String(password), 10);
 
-   mail.send(new UserPasswordNotification({...userk, default_password: password}));
+  //  mail.send(new UserPasswordNotification({...userk, default_password: password}));
 
    const user = await User.updateOrCreate({email:data.email},{
      ...data,
