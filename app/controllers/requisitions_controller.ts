@@ -516,6 +516,7 @@ async approvisionnement({ response, request }: HttpContext) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
     requisition.status = data.status ==='rejected' ? 'rejected': 'approved';
+    requisition.next_step = 'direction';
     requisition.approved_accounter = true;
     requisition.save();
 
