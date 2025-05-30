@@ -86,23 +86,23 @@ export default class RequisitionsController {
       }
       
       // give next step of the requisition. 
-      const userPost = user.post;
+      // const userPost = user.post;
 
      
     
-    if(userPost === 'demandeur'){
-      status = 'pending'
-      data.next_step = 'approvisionnement'
-    }else if(userPost === 'approvisionnement'){
-      status = 'pending'
-      data.next_step = 'approvisionnement'
-    }else if(userPost === 'direction'){
-      status = 'approved'
-      data.next_step = 'direction'
-    }else if(userPost === 'comptabilite'){
-      status = 'precured'
-      data.next_step = 'comptabilite'
-    }
+    // if(userPost === 'demandeur'){
+    //   status = 'pending'
+    //   data.next_step = 'approvisionnement'
+    // }else if(userPost === 'approvisionnement'){
+    //   status = 'pending'
+    //   data.next_step = 'approvisionnement'
+    // }else if(userPost === 'direction'){
+    //   status = 'approved'
+    //   data.next_step = 'direction'
+    // }else if(userPost === 'comptabilite'){
+    //   status = 'precured'
+    //   data.next_step = 'comptabilite'
+    // }
   
       // 2. Création de la requête principale
       const requisition = await Requisition.create({ 
