@@ -231,6 +231,7 @@ export default class RequisitionsController {
             article_id: item.article_id
           },{
             quantite_demande: Number(item.quantiteDemande) || 0,
+            quantite_recue: Number(item.quantiteDemande) || 0,
             prix_unitaire: Number(item.prix_unitaire) || 0,
             prix_total: Number(item.prix_total) || 0,
             supplier_id: item.supplier_id || null,
