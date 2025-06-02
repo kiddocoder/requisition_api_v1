@@ -36,15 +36,32 @@ export default class AdminStatsController {
             .count('* as count')
 
         return response.send({
-            pendingRequisitions: pendingRequisitions[0].count,
-            approvedRequisitions: approvedRequisitions[0].count,
-            rejectedRequisitions: rejectedRequisitions[0].count,
-            completedRequisitions: completedRequisitions[0].count,
-            precuredRequisitions: precuredRequisitions[0].count,
-            totalRequisitions: totalRequisitions[0].count,
-            totalUsers: totalUsers[0].count,
-            totalEnterprises: totalEnterprises[0].count,
-            totalRequisitionItems: totalRequisitionItems[0].count
+            requisitions:{
+                status:{
+                    pending: parseInt(pendingRequisitions[0].count),
+                    approved: parseInt(approvedRequisitions[0].count),
+                    rejected: parseInt(rejectedRequisitions[0].count),
+                    completed: parseInt(completedRequisitions[0].count),
+                    precured: parseInt(precuredRequisitions[0].count)
+                },
+                total: parseInt(totalRequisitions[0].count),
+                items: parseInt(totalRequisitionItems[0].count)
+            },
+            users:{
+                total: parseInt(totalUsers[0].count),
+                suspended: await db.from('users')
+                    .where('is_deleted', true)
+                    .count('* as count')
+                    .then(res => parseInt(res[0].count))
+                
+            },
+            enterprises:{
+                total: parseInt(totalEnterprises[0].count),
+                archived: await db.from('enterprises')
+                    .where('is_deleted', true)
+                    .count('* as count')
+                    .then(res => parseInt(res[0].count))
+            },
         })
     }
 }
