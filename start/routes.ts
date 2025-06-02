@@ -95,6 +95,9 @@ router.get('/article/stock/mouvement/:id',StockMouvementsController.prototype.ge
 
 router.resource('budgets',BudgetsController).apiOnly();
 
+/** Stats */
+router.get('/stats/admin/dashboard', '#controllers/admin_stats_controller.dashboard');
+
 }).prefix('/api')
 
 router.get('/attachments/:filename', RequisitionsController.prototype.serveAttachment);
