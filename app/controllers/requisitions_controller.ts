@@ -275,6 +275,7 @@ export default class RequisitionsController {
     const requisition = await Requisition.query()
     .where('id',params.id)
     .preload('enterprise')
+    .preload('caisse')
     .preload('items', (query) => {
       query.where('requisition_id',params.id)
       query.preload('article')
