@@ -1,5 +1,6 @@
 import Article from '#models/article'
 import ArticleCategory from '#models/article_category';
+import PriceHistory from '#models/price_history';
 import Stock from '#models/stock';
 import Supplier from '#models/supplier';
 import type { HttpContext } from '@adonisjs/core/http'
@@ -125,5 +126,22 @@ export default class ArticlesController {
       .select('article')
       .orderBy('created_at','desc')
       return response.json(articles)
+    }
+
+    /** get Article price history variation */
+
+    async getPriceHistory({ params, response }: HttpContext) {
+      const article = await Article.find(params.id)
+      if(!article ){
+        return response.notFound({message:"Article not found"})
+      }
+
+      const histories = await PriceHistory.query()
+      .where('article_id', params.id)
+      .orderBy('created_at', 'desc')
+      .exec();
+
+      return response.json(histories || [])
+
     }
 }

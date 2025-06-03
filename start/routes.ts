@@ -92,6 +92,7 @@ router.resource('departments',DepartmentsController).apiOnly();
 
 router.resource('stock_mouvement',StockMouvementsController).apiOnly();
 router.get('/article/stock/mouvement/:id',StockMouvementsController.prototype.getArticleStockMovment);
+router.get('/article/price/history/:id',ArticlesController.prototype.getPriceHistory);
 
 router.resource('budgets',BudgetsController).apiOnly();
 
