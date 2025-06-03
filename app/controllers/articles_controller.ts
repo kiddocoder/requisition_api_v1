@@ -33,8 +33,9 @@ export default class ArticlesController {
     }
 
     const article = await Article.updateOrCreate({name:data.name},data)
-    if(article.quantite_restante = 0){
+    if(article.quantite_restante == 0){
       article.status = 'rupture_de_stock'
+      await article.save();
     }
     return response.json(article)
   }
