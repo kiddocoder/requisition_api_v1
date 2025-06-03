@@ -189,9 +189,11 @@ export default class RequisitionsController {
 
      
     
-    // if(userPost === 'demandeur'){
-    //   status = 'pending'
-    //   data.next_step = 'approvisionnement'
+    if(userPost === 'demandeur'){
+      status = 'pending'
+      data.next_step = 'approvisionnement'
+    }
+    
     // }else if(userPost === 'approvisionnement'){
     //   status = 'pending'
     //   data.next_step = 'approvisionnement'
