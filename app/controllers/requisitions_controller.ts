@@ -15,6 +15,105 @@ import OperationType from '#models/operation_type';
 import db from '@adonisjs/lucid/services/db';
 import logger from '@adonisjs/core/services/logger';
 import User from '#models/user';
+import PriceHistory from '#models/price_history';
+import { TransactionClientContract } from '@adonisjs/lucid/types/database';
+
+const traitItems = async (items:RequisitionItem[],requisition:Requisition,trx:TransactionClientContract) => {
+
+  // 1. Valider que tous les articles existent avant de commencer
+    const validArticleIds = [];
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      const articleExists = await Article.query({ client: trx })
+        .where('id', article_id)
+        .where('is_deleted', false)
+        .first();
+      
+      if (articleExists) {
+        validArticleIds.push(article_id);
+      } else {
+        console.warn(`Article with id ${article_id} not found or deleted, will be skipped`);
+        continue;
+      }
+    }
+
+     // Marquer comme non acceptés les articles qui ne sont plus dans la liste des articles valides
+    if (validArticleIds.length > 0) {
+      await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .whereNotIn('article_id', validArticleIds)
+        .update({ accepted: false });
+
+    } else {
+      // Si aucun article valide n'est fourni, marquer tous comme non acceptés
+      await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .update({ accepted: false });
+    }
+        // 2. Traiter uniquement les articles valides
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      
+      // Vérifier si cet article est dans la liste des articles valides
+      if (!validArticleIds.includes(article_id)) {
+        continue; // Ignorer cet article
+      }
+      
+      // Validation des données numériques
+      const prix_unitaire = Number(item.prix_unitaire) || 0;
+      const avance_credit = Number(item.avance_credit) || 0;
+      const quantite_demande = Number(item.quantite_demande) || 0;
+      const quantite_recue = Number(item.quantite_recue) || 0;
+      const prix_total = Number(item.quantite_recue) *  Number(item.prix_unitaire) || 0;
+
+      console.log(`Processing article_id: ${article_id}, prix_unitaire: ${prix_unitaire}, prix_total: ${prix_total}`);
+
+      // Chercher l'article spécifique pour cette réquisition
+      const existingItem = await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .where('article_id', article_id)
+        .first();
+
+      if (existingItem) {
+        // Mettre à jour l'article existant
+        await RequisitionItem.query({ client: trx })
+          .where('id', existingItem.id)
+          .update({
+            prix_unitaire: prix_unitaire,
+            prix_total: prix_total,
+            transaction_type: item.transaction_type,
+            avance_credit: avance_credit,
+            supplier_id: item.supplier_id || null,
+            quantite_demande: quantite_demande,
+            quantite_recue: quantite_recue,
+            accepted: true // Marquer comme accepté puisqu'il est dans la liste
+          }); 
+
+          // update article ...
+          const suchArticle = await Article.findOrFail(existingItem.article_id);
+
+          await Article.query({client:trx})
+          .where('id',existingItem.article_id)
+          .update({
+            quantite_restante: (existingItem.transaction_type === 'stock'&& suchArticle.quantite_restante > 1) ? Number((suchArticle.quantite_restante) -  Number(quantite_recue)) : suchArticle.quantite_restante
+          })
+
+          // create price history
+          await PriceHistory.create({
+            article_id:existingItem.article_id,
+            prix_unitaire:prix_unitaire,
+            quantite:quantite_recue,
+            date:DateTime.now()
+          })
+        
+        console.log(`Updated existing item for article_id: ${article_id}`);
+        continue;
+      }
+    }
+
+    return trx;
+
+}
 
 export default class RequisitionsController {
   /**
@@ -379,10 +478,27 @@ async approvisionnement({ response, request }: HttpContext) {
             quantite_recue: quantite_recue,
             accepted: true // Marquer comme accepté puisqu'il est dans la liste
           });
+
+          // update article ...
+          const suchArticle = await Article.findOrFail(existingItem.article_id);
+
+          await Article.query({client:trx})
+          .where('id',existingItem.article_id)
+          .update({
+            quantite_restante: (existingItem.transaction_type === 'stock'&& suchArticle.quantite_restante > 1) ? Number((suchArticle.quantite_restante) -  Number(quantite_recue)) : suchArticle.quantite_restante
+          })
+
+          // create price history
+          await PriceHistory.create({
+            article_id:existingItem.article_id,
+            prix_unitaire:prix_unitaire,
+            quantite:quantite_recue,
+            date:DateTime.now()
+          })
         
         console.log(`Updated existing item for article_id: ${article_id}`);
       } else {
-        // Créer un nouvel article
+        // Créer un nouvel article item
         await RequisitionItem.create({
           requisition_id: requisition.id,
           article_id: article_id,
@@ -499,6 +615,8 @@ async approvisionnement({ response, request }: HttpContext) {
   }
 
   async ApproveCompta({request,params,response}:HttpContext){
+    const trx = await db.transaction();
+
     const data = request.only([
       'requisition_id',
       'caisse_id',
@@ -510,15 +628,35 @@ async approvisionnement({ response, request }: HttpContext) {
     const getcomment = request.input('comment');
     const {comment,author,user_id} = getcomment;
     const total = Number(request.input('total'));
+    const items = request.input('items') || [];
 
-    const requisition = await Requisition.find(params.requisition_id);
-    if (!requisition || requisition.is_deleted) {
+     // Vérifier si la réquisition existe et n'est pas supprimée
+    const requisition = await Requisition.query({ client: trx })
+      .where('id', params.requisition_id)
+      .where('is_deleted', false)
+      .first();
+    
+    
+    if (!requisition) {
+      await trx.rollback();
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
+
+        if (!requisition || requisition.is_deleted) {
+      return response.notFound({ message: 'Requisition not found or deleted!' });
+    }
+   
+
     requisition.status = data.status ==='rejected' ? 'rejected': 'approved';
     requisition.next_step = 'direction';
     requisition.approved_accounter = true;
-    requisition.save();
+    
+    
+   const kx =  await traitItems(items,requisition,trx)
+
+   const tt = await requisition.useTransaction(kx).save();
+
+   console.log(tt)
 
     const  caisse = await Caisse.find(data.caisse_id) || null;
  
@@ -549,8 +687,12 @@ async approvisionnement({ response, request }: HttpContext) {
         });
       }
 
-      response.ok({message:"Approved par compatabit"})
-  
+      await trx.commit();
+    return response.ok({ 
+      message: 'Requisition Approved successfully!',
+      requisition_id: requisition.id
+    });
+
   }
 
   async requisition_articles({response,params}:HttpContext){
@@ -567,19 +709,25 @@ async approvisionnement({ response, request }: HttpContext) {
       'description',
       'status'
     ]) 
+   const trx = await db.transaction(); 
 
     const getcomment = request.input('comment');
     const {comment,author,user_id} = getcomment;
     const total = Number(request.input('total'));
+    const items = request.input('items') || [];
 
+  
     const requisition = await Requisition.find(params.requisition_id);
     if (!requisition || requisition.is_deleted) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
     
+    const kx = await traitItems(items,requisition,trx)
+
+
     requisition.approved_direction = data.status === 'approved';
     requisition.status = 'completed';
-    requisition.save();
+    await requisition.useTransaction(kx).save();
 
     const  caisse = await Caisse.find(data.caisse_id) || null;
  
@@ -610,6 +758,7 @@ async approvisionnement({ response, request }: HttpContext) {
         });
       }
 
+      await trx.commit();
       response.ok({message:"Approved par compatabit"})
   
   }
@@ -669,6 +818,7 @@ async approvisionnement({ response, request }: HttpContext) {
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
+      query.preload('supplier')
     })
     .preload('attachments')
     .preload('demendeur')
@@ -688,6 +838,7 @@ async approvisionnement({ response, request }: HttpContext) {
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
+       query.preload('supplier')
     })
     .preload('attachments')
     .preload('demendeur')
@@ -707,6 +858,7 @@ async approvisionnement({ response, request }: HttpContext) {
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
+       query.preload('supplier')
     })
     .preload('attachments')
     .preload('demendeur')
@@ -726,6 +878,7 @@ async approvisionnement({ response, request }: HttpContext) {
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
+       query.preload('supplier')
     })
     .preload('attachments')
     .preload('demendeur')
@@ -744,6 +897,7 @@ async approvisionnement({ response, request }: HttpContext) {
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
+       query.preload('supplier')
     })
     .preload('attachments')
     .preload('demendeur')
