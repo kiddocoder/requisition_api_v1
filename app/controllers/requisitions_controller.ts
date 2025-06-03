@@ -193,7 +193,7 @@ export default class RequisitionsController {
       status = 'pending'
       data.next_step = 'approvisionnement'
     }
-    
+
     // }else if(userPost === 'approvisionnement'){
     //   status = 'pending'
     //   data.next_step = 'approvisionnement'
@@ -316,6 +316,7 @@ export default class RequisitionsController {
         .where('id', params.id)
         .update({
           ...data,
+          ...{next_step: 'approvisionnement'},
           date,
           status
         });
