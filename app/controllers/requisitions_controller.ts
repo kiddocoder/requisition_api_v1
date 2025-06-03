@@ -185,7 +185,7 @@ export default class RequisitionsController {
       }
       
       // give next step of the requisition. 
-      // const userPost = user.post;
+      const userPost = user.post;
 
      
     
@@ -202,6 +202,11 @@ export default class RequisitionsController {
     //   status = 'precured'
     //   data.next_step = 'comptabilite'
     // }
+
+      if(userPost === 'comptabilite'){
+      status = 'precured'
+      data.next_step = 'direction'
+    }
   
       // 2. Création de la requête principale
       const requisition = await Requisition.create({ 
