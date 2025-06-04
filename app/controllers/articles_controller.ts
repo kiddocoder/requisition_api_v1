@@ -115,7 +115,7 @@ export default class ArticlesController {
     }
 
     async getSupplierArticles({ params, response }: HttpContext) {
-      const supplier = await Supplier.findOrFail(params.id)
+      const supplier = await Supplier.find(params.id)
 
       if(!supplier){
         return response.notFound({message:"Supplier not found"})
@@ -123,8 +123,10 @@ export default class ArticlesController {
       const articles =  await Stock.query()
       .where('supplier_id',params.id)
       .preload('article')
-      .select('article')
-      .orderBy('created_at','desc')
+      .preload('supplier')
+      .distinct()
+      .orderBy('created_at','desc');
+
       return response.json(articles)
     }
 
