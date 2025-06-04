@@ -75,8 +75,8 @@ export default class StocksController {
           await PriceHistory.create(
             {
               article_id,
-              prix_unitaire: existingArticle.prix_unitaire,
-              quantite: existingArticle.quantite,
+              prix_unitaire: prix_unitaire,
+              quantite:quantite,
               date: DateTime.now(),
               description: `Prix avant mise à jour (${existingArticle.prix_unitaire} BIF)`,
             },
