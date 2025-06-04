@@ -58,6 +58,11 @@ export default class extends BaseSchema {
       table.boolean('precured').defaultTo(false) // approvisionne
       table.boolean('approved_direction').defaultTo(false)
       table.string('status').notNullable().defaultTo("draft") //pending,accepted,refused,cancelled,returned
+
+      table.timestamp('precured_at').nullable();
+      table.timestamp('approved_at').nullable();
+      table.timestamp('completed_at').nullable();
+      table.timestamp('rejected_at').nullable();
       
       table.boolean('is_deleted').defaultTo(false)
       table.index(["enterprise_id","demendeur_id","car_id","caisse_id"])

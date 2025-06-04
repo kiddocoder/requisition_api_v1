@@ -53,6 +53,18 @@ export default class Requisition extends BaseModel {
   declare caisse_id:number | null
 
   @column()
+  declare precured_at : DateTime | null
+
+  @column()
+  declare approved_at : DateTime | null
+
+  @column()
+  declare completed_at : DateTime | null
+
+  @column()
+  declare rejected_at : DateTime | null
+
+  @column()
   declare is_deleted: boolean 
 
   @column.dateTime({ autoCreate: true })

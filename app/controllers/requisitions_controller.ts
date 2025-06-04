@@ -311,6 +311,13 @@ export default class RequisitionsController {
         await trx.rollback();
         return response.badRequest({ message: 'Au moins un article est requis' });
       }
+
+      const apro = {
+        precured_at:null,
+        rejected_at:null,
+        completed_at:null,
+        approved_at:null
+      }
   
       // 2. Mise à jour de la requête principale
       const requisition = await Requisition.query({ client: trx })
@@ -318,6 +325,7 @@ export default class RequisitionsController {
         .update({
           ...data,
           ...{next_step: 'approvisionnement'},
+          ...apro,
           date,
           status
         });
@@ -418,6 +426,7 @@ async approvisionnement({ response, request }: HttpContext) {
     requisition.priority = priority;
     requisition.precured = true;
     requisition.status = 'precured';
+    requisition.precured_at = DateTime.now();
     await requisition.useTransaction(trx).save();
 
     // 1. Valider que tous les articles existent avant de commencer
@@ -659,7 +668,14 @@ async approvisionnement({ response, request }: HttpContext) {
     requisition.status = data.status ==='rejected' ? 'rejected': 'approved';
     requisition.next_step = 'direction';
     requisition.approved_accounter = true;
+
+     if(data.status === "rejected"){
+      requisition.rejected_at = DateTime.now()
+    }else{
+ requisition.approved_at = DateTime.now();
     
+    }
+   
     
    const kx =  await traitItems(items,requisition,trx)
 
@@ -735,7 +751,13 @@ async approvisionnement({ response, request }: HttpContext) {
 
 
     requisition.approved_direction = data.status === 'approved';
-    requisition.status = 'completed';
+    requisition.status = data.status === "rejected" ? "rejected" :"completed";
+    if(data.status === "rejected"){
+      requisition.rejected_at = DateTime.now()
+    }else{
+ requisition.completed_at =  DateTime.now() ;
+    }
+   
     await requisition.useTransaction(kx).save();
 
     const  caisse = await Caisse.find(data.caisse_id) || null;
