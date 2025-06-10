@@ -75,7 +75,13 @@ export default class Requisition extends BaseModel {
 
   @beforeCreate()
   static async generateNumber(requisition: Requisition) {
-    requisition.number = `REQ-${DateTime.now().toFormat('yyMMddHHmmss')}`
+    const year = DateTime.now().year.toString().slice(2)
+    const lastNumber = await Requisition.query()
+      .whereRaw(`number LIKE '${year}-%'`)
+      .orderBy('number', 'desc')
+      .first()
+    const number = lastNumber ? parseInt(lastNumber.number.split('-')[1]) + 1 : 1
+    requisition.number = `${year}-${number.toString().padStart(8, '0')}`
   }
 
   // Relationships
