@@ -803,7 +803,7 @@ async approvisionnement({ response, request }: HttpContext) {
   async getRequisitionByDemandeur({response,params}:HttpContext){
     const requisitions = await Requisition.query()
     .where('demendeur_id',params.id)
-    .andWhere('status','pending')
+    .andWhereIn('status',['pending','precured'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
@@ -931,7 +931,7 @@ async approvisionnement({ response, request }: HttpContext) {
 
     const requisitions = await Requisition.query()
     .andWhereIn('status',['precured','pending'])
-    .andWhere('next_step','comptabilite')
+    .andWhereIn('next_step',['comptabilite','direction'])
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')

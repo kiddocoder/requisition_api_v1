@@ -38,7 +38,7 @@ export default class Requisition extends BaseModel {
   declare demendeur_id: number 
   
   @column()
-  declare enterprise_id: number
+  declare enterprise_id: number | null
 
   @column()
   declare approved_direction:boolean
