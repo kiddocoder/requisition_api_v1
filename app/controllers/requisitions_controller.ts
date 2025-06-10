@@ -665,9 +665,9 @@ async approvisionnement({ response, request }: HttpContext) {
     }
    
 
-    requisition.status = data.status ==='rejected' ? 'rejected': 'approved';
-    requisition.next_step = 'direction';
-    requisition.approved_accounter = true;
+    requisition.status = data.status ==='rejected' ? 'pending': 'approved';
+    requisition.next_step = data.status ==='rejected' ? 'approvisionnement':'direction';
+    requisition.approved_accounter = data.status ==='rejected' ? false:true;
 
      if(data.status === "rejected"){
       requisition.rejected_at = DateTime.now()
@@ -751,7 +751,9 @@ async approvisionnement({ response, request }: HttpContext) {
 
 
     requisition.approved_direction = data.status === 'approved';
-    requisition.status = data.status === "rejected" ? "rejected" :"completed";
+    requisition.status = data.status === "rejected" ? "precured" :"completed";
+    requisition.next_step = data.status === "rejected" ? "comptabilite" :"completed";
+    
     if(data.status === "rejected"){
       requisition.rejected_at = DateTime.now()
     }else{
