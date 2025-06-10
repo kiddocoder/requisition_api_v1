@@ -92,7 +92,7 @@ export default class CaissesController {
     if(!data.budget){
     await Budget.create({
       caisse_id:caisse.id,
-      montant:parseInt(data.budget),
+      montant:parseInt(data.budget) || 0,
       created_by:data.alimented_by || null,
       description:'Mise à jour du budget initial de la caisse',
       enterprise_id:caisse.enterprise_id || null
