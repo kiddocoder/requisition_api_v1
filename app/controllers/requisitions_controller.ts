@@ -885,12 +885,12 @@ async approvisionnement({ response, request }: HttpContext) {
     return response.send(requisitions || [])
   }
 
-  async getEnterpriseHistoryRequisitions({response,request}:HttpContext){
+  async getEnterpriseHistoryRequisitions({response,params,request}:HttpContext){
     const page = request.input('page') || 1
     const limit = request.input('limit') || 15
 
     const requisitions = await Requisition.query()
-    .where('enterprise_id',request.input('enterprise_id'))
+    .where('enterprise_id',params.id)
     .whereIn('status',['approved','rejected','completed','cancelled','rejected','precured'])
     .preload('enterprise')
     .preload('items', (query) => {
