@@ -685,12 +685,14 @@ async approvisionnement({ response, request }: HttpContext) {
 
     const  caisse = await Caisse.find(data.caisse_id) || null;
  
+    if(total < Number(caisse?.solde_actuel)){
     caisse?.merge(
       {
         solde_actuel:caisse.budget - total
       }
     )
     caisse?.save();
+    }
 
     const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
     
@@ -764,12 +766,14 @@ async approvisionnement({ response, request }: HttpContext) {
 
     const  caisse = await Caisse.find(data.caisse_id) || null;
  
+    if(total < Number(caisse?.solde_actuel)){
     caisse?.merge(
       {
         solde_actuel:caisse.budget - total
       }
     )
     caisse?.save();
+  }
 
     const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
     
