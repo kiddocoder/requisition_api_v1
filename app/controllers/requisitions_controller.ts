@@ -405,7 +405,7 @@ async approvisionnement({ response, request }: HttpContext) {
     const user_id = request.input('user_id') || null;
     const items = request.input('items') || [];
     console.log("items : ", items);
-    const author = request.input('author') || 'utilisateur';
+    const author = request.input('author') || "Service d'approvisionnement";
     const pieceFiles = request.files('attachments', {
       size: '10mb',
       extnames: ['jpg', 'png', 'pdf', 'docx', 'xlsx', 'webp', 'jpeg'],
@@ -753,7 +753,7 @@ async approvisionnement({ response, request }: HttpContext) {
     requisition.approved_direction = data.status === 'approved';
     requisition.status = data.status === "rejected" ? "precured" :"completed";
     requisition.next_step = data.status === "rejected" ? "comptabilite" :"completed";
-    
+
     if(data.status === "rejected"){
       requisition.rejected_at = DateTime.now()
     }else{
