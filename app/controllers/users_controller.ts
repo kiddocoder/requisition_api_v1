@@ -84,6 +84,7 @@ export default class UsersController {
       'email',
       'enterprise_id',
       'post',
+      'role',
       'username'
     ])
 

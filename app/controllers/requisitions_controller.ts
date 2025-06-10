@@ -931,6 +931,7 @@ async approvisionnement({ response, request }: HttpContext) {
 
     const requisitions = await Requisition.query()
     .andWhereIn('status',['precured','pending'])
+    .andWhere('next_step','comptabilite')
     .preload('enterprise')
     .preload('items', (query) => {
       query.preload('article')
