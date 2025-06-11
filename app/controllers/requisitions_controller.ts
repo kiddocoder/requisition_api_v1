@@ -88,6 +88,84 @@ const traitItems = async (items:RequisitionItem[],requisition:Requisition,trx:Tr
             quantite_recue: quantite_recue,
             accepted: true // Marquer comme accepté puisqu'il est dans la liste
           }); 
+        continue;
+      }
+    }
+
+    return trx;
+
+}
+
+const traitItemsDirection = async (items:RequisitionItem[],requisition:Requisition,trx:TransactionClientContract) => {
+    
+  // 1. Valider que tous les articles existent avant de commencer
+    const validArticleIds = [];
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      const articleExists = await Article.query({ client: trx })
+        .where('id', article_id)
+        .where('is_deleted', false)
+        .first();
+      
+      if (articleExists) {
+        validArticleIds.push(article_id);
+      } else {
+        console.warn(`Article with id ${article_id} not found or deleted, will be skipped`);
+        continue;
+      }
+    }
+
+     // Marquer comme non acceptés les articles qui ne sont plus dans la liste des articles valides
+    if (validArticleIds.length > 0) {
+      await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .whereNotIn('article_id', validArticleIds)
+        .update({ accepted: false });
+
+    } else {
+      // Si aucun article valide n'est fourni, marquer tous comme non acceptés
+      await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .update({ accepted: false });
+    }
+        // 2. Traiter uniquement les articles valides
+    for (const item of items) {
+      const article_id = Number(item.article_id);
+      
+      // Vérifier si cet article est dans la liste des articles valides
+      if (!validArticleIds.includes(article_id)) {
+        continue; // Ignorer cet article
+      }
+      
+      // Validation des données numériques
+      const prix_unitaire = Number(item.prix_unitaire) || 0;
+      const avance_credit = Number(item.avance_credit) || 0;
+      const quantite_demande = Number(item.quantite_demande) || 0;
+      const quantite_recue = Number(item.quantite_recue) || 0;
+      const prix_total = Number(item.quantite_recue) *  Number(item.prix_unitaire) || 0;
+
+      console.log(`Processing article_id: ${article_id}, prix_unitaire: ${prix_unitaire}, prix_total: ${prix_total}`);
+
+      // Chercher l'article spécifique pour cette réquisition
+      const existingItem = await RequisitionItem.query({ client: trx })
+        .where('requisition_id', requisition.id)
+        .where('article_id', article_id)
+        .first();
+
+      if (existingItem) {
+        // Mettre à jour l'article existant
+        await RequisitionItem.query({ client: trx })
+          .where('id', existingItem.id)
+          .update({
+            prix_unitaire: prix_unitaire,
+            prix_total: prix_total,
+            transaction_type: item.transaction_type,
+            avance_credit: avance_credit,
+            supplier_id: item.supplier_id || null,
+            quantite_demande: quantite_demande,
+            quantite_recue: quantite_recue,
+            accepted: true // Marquer comme accepté puisqu'il est dans la liste
+          }); 
 
           // update article ...
           const suchArticle = await Article.findOrFail(existingItem.article_id);
@@ -114,6 +192,7 @@ const traitItems = async (items:RequisitionItem[],requisition:Requisition,trx:Tr
     return trx;
 
 }
+ 
 
 export default class RequisitionsController {
   /**
@@ -646,7 +725,7 @@ async approvisionnement({ response, request }: HttpContext) {
 
     const getcomment = request.input('comment');
     const {comment,author,user_id} = getcomment;
-    const total = Number(request.input('total'));
+    // const total = Number(request.input('total'));
     const items = request.input('items') || [];
 
      // Vérifier si la réquisition existe et n'est pas supprimée
@@ -684,26 +763,26 @@ async approvisionnement({ response, request }: HttpContext) {
 
    console.log(tt)
 
-    const  caisse = await Caisse.find(data.caisse_id) || null;
+    // const  caisse = await Caisse.find(data.caisse_id) || null;
  
-    if(total < Number(caisse?.solde_actuel)){
-    caisse?.merge(
-      {
-        solde_actuel:caisse.budget - total
-      }
-    )
-    caisse?.save();
-    }
+    // if(total < Number(caisse?.solde_actuel)){
+    // caisse?.merge(
+    //   {
+    //     solde_actuel:caisse.budget - total
+    //   }
+    // )
+    // caisse?.save();
+    // }
 
-    const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
+    // const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
     
-    await Operation.create({
-      operation_type_id:SaveOper.id,
-      caisse_id:caisse?.id || null,
-      amount:total,
-      user_id:user_id,
-      description:data?.description || null
-    })
+    // await Operation.create({
+    //   operation_type_id:SaveOper.id,
+    //   caisse_id:caisse?.id || null,
+    //   amount:total,
+    //   user_id:user_id,
+    //   description:data?.description || null
+    // })
 
       // Ajouter un commentaire si fourni
       if (comment) {
@@ -750,8 +829,7 @@ async approvisionnement({ response, request }: HttpContext) {
       return response.notFound({ message: 'Requisition not found or deleted!' });
     }
     
-    const kx = await traitItems(items,requisition,trx)
-
+    let kx:TransactionClientContract = trx;
 
     requisition.approved_direction = data.status === 'approved';
     requisition.status = data.status === "rejected" ? "precured" :"completed";
@@ -760,21 +838,27 @@ async approvisionnement({ response, request }: HttpContext) {
     if(data.status === "rejected"){
       requisition.rejected_at = DateTime.now()
     }else{
- requisition.completed_at =  DateTime.now() ;
+      requisition.completed_at =  DateTime.now() ;
+    }
+
+    if(data.status === "completed"){
+        kx = await traitItemsDirection(items,requisition,trx)
     }
    
     await requisition.useTransaction(kx).save();
 
+    if(requisition.status === "completed"){
+      
     const  caisse = await Caisse.find(data.caisse_id) || null;
- 
+
     if(total < Number(caisse?.solde_actuel)){
     caisse?.merge(
       {
-        solde_actuel:caisse.budget - total
+        solde_actuel:Number(caisse.budget) - Number(total)
       }
     )
     caisse?.save();
-  }
+   }
 
     const SaveOper = await OperationType.updateOrCreate({name:"expenses"},{name:"expenses"})
     
@@ -783,9 +867,9 @@ async approvisionnement({ response, request }: HttpContext) {
       caisse_id:caisse?.id || null,
       amount:total,
       user_id:user_id,
-      description:data?.description || null
+      description:data?.description || `Paiement pour la requisition: ${requisition.number}.`
     })
-
+}
       // Ajouter un commentaire si fourni
       if (comment) {
         await RequisitionComment.create({

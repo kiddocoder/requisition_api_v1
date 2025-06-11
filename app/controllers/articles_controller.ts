@@ -33,12 +33,12 @@ export default class ArticlesController {
       data.reference = generatedRef;
     }
 
-    const article = await Article.updateOrCreate({name:data.name},data)
-    if(article.quantite_restante == 0){
+    const article = await Article.updateOrCreate({name:data.name},{...data,status :'rupture_de_stock'})
+    if(Number(article.quantite_restante) == 0){
       article.status = 'rupture_de_stock'
       await article.save();
     }
-    return response.json(article)
+    return response.json(article);
   }
 
   /**
