@@ -62,7 +62,7 @@ export default class CaissesController {
     await Operation.create({
       operation_type_id:operation?.id || null,
       user_id:data.alimented_by || null,
-      amount:data.budget,
+      amount:Number(data.budget),
       caisse_id:caisse.id ,
       description:`${caisse.name} created with new budget ${data.budget}`
     })
@@ -111,7 +111,7 @@ export default class CaissesController {
     await Operation.create({
       operation_type_id:operation?.id || null,
       user_id:data.alimented_by || null,
-      amount:data.budget,
+      amount:Number(data.budget),
       caisse_id:caisse.id ,
       description:`${caisse.name} updated with new budget ${data.budget}`
     })
@@ -147,17 +147,17 @@ export default class CaissesController {
     const newBudget = parseInt(data.budget) + Number(caisse.budget) 
 
     await caisse.merge({
-      budget:newBudget,
+      budget:Number(newBudget),
       alimented_by:data.alimented_by || null,
-      solde_actuel:caisse.solde_actuel + parseInt(data.budget)
+      solde_actuel:Number(caisse.solde_actuel) + parseInt(data.budget)
     }).save()
 
     // create a budget
     await Budget.create({
-      caisse_id:caisse.id,
+    caisse_id:caisse.id,
     created_by:data.alimented_by,
     enterprise_id:data.enterprise_id,
-    montant:newBudget,
+    montant:Number(newBudget),
     description:data.description || null
     })
 
@@ -177,7 +177,7 @@ export default class CaissesController {
     await Operation.create({
       operation_type_id:operation?.id || null,
       user_id:data.alimented_by || null,
-      amount:data.budget,
+      amount:Number(data.budget),
       caisse_id:caisse.id ,
       description:`${caisse.name} Alimented with new budget ${newBudget} on exisiting solde ${caisse.solde_actuel}`
     })
@@ -225,5 +225,9 @@ export default class CaissesController {
 
     return response.send(budgets || {message:"Not casse found !"})
   }
+
+  // async transferCaisses({response,params}:HttpContext){
+    
+  // }
 
 }

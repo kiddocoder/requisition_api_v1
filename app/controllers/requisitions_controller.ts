@@ -426,6 +426,7 @@ async approvisionnement({ response, request }: HttpContext) {
     requisition.priority = priority;
     requisition.precured = true;
     requisition.status = 'precured';
+    requisition.next_step = 'comptabilite';
     requisition.precured_at = DateTime.now();
     await requisition.useTransaction(trx).save();
 
